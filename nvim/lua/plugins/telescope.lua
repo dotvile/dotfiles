@@ -8,7 +8,7 @@ local function picker_launcher()
   local extensions = require("telescope").extensions
 
   local options = {
-    { name = "File Browser", picker = extensions.file_browser.file_browser },
+    { name = "File Browser", picker = extensions.file_browser },
     { name = "Find Files", picker = builtin.find_files },
     { name = "Live Grep", picker = builtin.live_grep },
     { name = "Buffers", picker = builtin.buffers },
@@ -82,14 +82,24 @@ return {
   },
   opts = {
     defaults = {
-      layout_strategy = "vertical",
+      layout_strategy = "horizontal",
       layout_config = {
-        preview_height = 0.9,
-        vertical = {
-          size = {
-            width = "95%",
-            height = "95%",
-          },
+        horizontal = {
+          preview_width = 0.5,
+          width = 0.95,
+          height = 0.95,
+        },
+      },
+      mappings = {
+        i = {
+          ["<Down>"] = "move_selection_next",
+          ["<Up>"] = "move_selection_previous",
+          ["<C-j>"] = "move_selection_next",
+          ["<C-k>"] = "move_selection_previous",
+        },
+        n = {
+          ["<Down>"] = "move_selection_next",
+          ["<Up>"] = "move_selection_previous",
         },
       },
     },
@@ -103,6 +113,19 @@ return {
         fuzzy = true,
         case_mode = "smart_case",
       },
+      file_browser = {
+        hijack_netrw = true,
+        mappings = {
+          i = {
+            ["<Down>"] = "move_selection_next",
+            ["<Up>"] = "move_selection_previous",
+          },
+          n = {
+            ["<Down>"] = "move_selection_next",
+            ["<Up>"] = "move_selection_previous",
+          },
+        },
+      },
     },
   },
   config = function(_, opts)
@@ -113,20 +136,92 @@ return {
     telescope.load_extension("luasnip")
   end,
   keys = {
-    { "<leader>tt", dropdown_no_preview(function(o) require("telescope.builtin").find_files(o) end), desc = "Find files" },
-    { "<leader>tg", function() require("telescope.builtin").live_grep() end, desc = "Live grep" },
-    { "<leader>tb", function() require("telescope.builtin").buffers() end, desc = "Buffers" },
-    { "<leader>t?", function() require("telescope.builtin").help_tags() end, desc = "Help tags" },
+    {
+      "<leader>tt",
+      dropdown_no_preview(function(o)
+        require("telescope.builtin").find_files(o)
+      end),
+      desc = "Find files",
+    },
+    {
+      "<leader>tg",
+      function()
+        require("telescope.builtin").live_grep()
+      end,
+      desc = "Live grep",
+    },
+    {
+      "<leader>tb",
+      function()
+        require("telescope.builtin").buffers()
+      end,
+      desc = "Buffers",
+    },
+    {
+      "<leader>t?",
+      function()
+        require("telescope.builtin").help_tags()
+      end,
+      desc = "Help tags",
+    },
     { "<leader>tp", picker_launcher, desc = "Picker launcher" },
     { "<leader>th", file_browser_here, desc = "File browser (here)" },
     { "<leader>tH", file_browser_cwd, desc = "File browser (cwd)" },
-    { "<leader>gc", function() require("telescope.builtin").git_commits() end, desc = "Git commits" },
-    { "<leader>gC", function() require("telescope.builtin").git_bcommits() end, desc = "Git buffer commits" },
-    { "<leader>gs", function() require("telescope.builtin").git_status() end, desc = "Git status" },
-    { "gr", function() require("telescope.builtin").lsp_references() end, desc = "LSP references" },
-    { "gd", function() require("telescope.builtin").lsp_definitions() end, desc = "LSP definitions" },
-    { "gi", function() require("telescope.builtin").lsp_implementations() end, desc = "LSP implementations" },
-    { "<leader>ts", function() require("telescope.builtin").treesitter() end, desc = "Treesitter symbols" },
-    { "<leader>*", function() require("telescope.builtin").grep_string() end, desc = "Grep word under cursor" },
+    {
+      "<leader>gc",
+      function()
+        require("telescope.builtin").git_commits()
+      end,
+      desc = "Git commits",
+    },
+    {
+      "<leader>gC",
+      function()
+        require("telescope.builtin").git_bcommits()
+      end,
+      desc = "Git buffer commits",
+    },
+    {
+      "<leader>gs",
+      function()
+        require("telescope.builtin").git_status()
+      end,
+      desc = "Git status",
+    },
+    {
+      "gr",
+      function()
+        require("telescope.builtin").lsp_references()
+      end,
+      desc = "LSP references",
+    },
+    {
+      "gd",
+      function()
+        require("telescope.builtin").lsp_definitions()
+      end,
+      desc = "LSP definitions",
+    },
+    {
+      "gi",
+      function()
+        require("telescope.builtin").lsp_implementations()
+      end,
+      desc = "LSP implementations",
+    },
+    {
+      "<leader>ts",
+      function()
+        require("telescope.builtin").treesitter()
+      end,
+      desc = "Treesitter symbols",
+    },
+    {
+      "<leader>*",
+      function()
+        require("telescope.builtin").grep_string()
+      end,
+      desc = "Grep word under cursor",
+    },
   },
 }
