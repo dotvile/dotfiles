@@ -4,8 +4,10 @@ export EDITOR='nvim'
 export PATH="$HOME/.bin:$PATH"
 # rust
 export PATH="$HOME/.cargo/bin:$PATH"
-# opencode
-export PATH="$HOME/.zshrc:$PATH"
+# Go
+export PATH="$HOME/.local/go/bin:$PATH"
+export GOPATH="$HOME/go"
+export PATH="$GOPATH/bin:$PATH"
 #local
 export PATH="$HOME/.local/bin:$PATH"
 

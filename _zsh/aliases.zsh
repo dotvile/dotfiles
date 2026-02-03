@@ -3,8 +3,8 @@ alias ..='cd ..'
 alias ...='cd ../..'
 
 # Neovim
-alias nvdot='cd ~/Development/dotfiles && nvim'
-alias nvc='cd ~/Development/dotfiles/nvim && nvim'
+alias nvdot='cd ~/dotfiles && nvim'
+alias nvc='cd ~/dotfiles/nvim && nvim'
 #Java
 alias jc='javac'
 alias jx='java'
@@ -31,8 +31,8 @@ alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
 alias fast='clear && fastfetch'
 
 # Project Init
-alias initfmt='$HOME/Development/dotfiles/_bin/helpers/init_formatter.sh'
-alias initlint='$HOME/Development/dotfiles/_bin/helpers/init_linter.sh'
+alias initfmt='$HOME/dotfiles/_bin/helpers/init_formatter.sh'
+alias initlint='$HOME/dotfiles/_bin/helpers/init_linter.sh'
 
 # Obsidian
 alias oo='cd $HOME/library/Mobile\ Documents/iCloud~md~obsidian/Documents/Vile'
