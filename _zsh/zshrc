@@ -1,0 +1,4 @@
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/development/dotfiles}"
+export DOTFILES_DIR
+source "$DOTFILES_DIR/_zsh/init.zsh"
+
