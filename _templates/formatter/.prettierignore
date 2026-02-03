@@ -1,0 +1,24 @@
+# deps
+node_modules
+
+# build outputs
+dist
+build
+.output
+coverage
+
+# caches
+.cache
+.vite
+turbo
+.parcel-cache
+
+# lockfiles
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lockb
+
+# generated / minified
+*.min.*
+*.map
