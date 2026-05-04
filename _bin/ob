@@ -1,0 +1,434 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+
+VAULT_DIR = Path.home() / "Library/Mobile Documents/iCloud~md~obsidian/Documents/Vile"
+TEMPLATES_DIR = VAULT_DIR / "templates"
+DEFAULT_EDITOR = os.environ.get("EDITOR", "nvim")
+SUPPORTED_TYPES = {"default", "study-session", "concept-note", "source-note", "daily"}
+TYPE_TO_DIR = {
+    "default": "inbox",
+    "study-session": "inbox",
+    "concept-note": "notes",
+    "source-note": "notes",
+    "daily": "daily",
+}
+TYPE_TO_TAGS = {
+    "default": ["type/note", "status/inbox"],
+    "study-session": ["type/study-session", "status/inbox"],
+    "concept-note": ["type/concept", "status/evergreen"],
+    "source-note": ["type/source"],
+    "daily": ["type/daily"],
+}
+
+
+def slugify(value: str) -> str:
+    value = value.strip().lower()
+    value = re.sub(r"[^a-z0-9]+", "-", value)
+    value = re.sub(r"-+", "-", value).strip("-")
+    return value or "untitled"
+
+
+def today() -> str:
+    return dt.date.today().isoformat()
+
+
+def ensure_vault_dirs() -> None:
+    for name in ("inbox", "notes", "maps", "templates", "daily"):
+        (VAULT_DIR / name).mkdir(parents=True, exist_ok=True)
+
+
+def parse_csv_list(raw: str | None) -> list[str]:
+    if not raw:
+        return []
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def shell_quote(value: str) -> str:
+    return "'" + value.replace("'", "'\"'\"'") + "'"
+
+
+def load_text(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
+def frontmatter_bounds(text: str) -> tuple[int, int] | None:
+    if not text.startswith("---\n"):
+        return None
+    end = text.find("\n---\n", 4)
+    if end == -1:
+        return None
+    return (4, end)
+
+
+def parse_frontmatter(text: str) -> tuple[dict[str, object], str]:
+    bounds = frontmatter_bounds(text)
+    if not bounds:
+        return {}, text
+    start, end = bounds
+    raw = text[start:end]
+    body = text[end + 5 :]
+    data: dict[str, object] = {}
+    current_key: str | None = None
+    current_list: list[str] | None = None
+    for line in raw.splitlines():
+        if line.startswith("  - ") and current_key and current_list is not None:
+            current_list.append(line[4:].strip().strip('"'))
+            continue
+        current_key = None
+        current_list = None
+        if ":" not in line:
+            continue
+        key, rest = line.split(":", 1)
+        key = key.strip()
+        rest = rest.strip()
+        if rest == "[]":
+            data[key] = []
+            continue
+        if rest.startswith("[") and rest.endswith("]"):
+            inner = rest[1:-1].strip()
+            if not inner:
+                data[key] = []
+            else:
+                data[key] = [item.strip().strip('"') for item in inner.split(",") if item.strip()]
+            continue
+        if rest == "":
+            data[key] = []
+            current_key = key
+            current_list = data[key]
+            continue
+        if rest.lower() in {"true", "false"}:
+            data[key] = rest.lower() == "true"
+            continue
+        data[key] = rest.strip('"')
+    return data, body
+
+
+def dump_frontmatter(data: dict[str, object]) -> str:
+    lines = ["---"]
+    preferred_order = [
+        "title",
+        "tags",
+        "type",
+        "topic",
+        "mocs",
+        "source",
+        "author",
+        "url",
+        "created",
+        "updated",
+    ]
+    keys = preferred_order + [key for key in data.keys() if key not in preferred_order]
+    seen: set[str] = set()
+    for key in keys:
+        if key in seen or key not in data:
+            continue
+        seen.add(key)
+        value = data[key]
+        if isinstance(value, list):
+            if not value:
+                lines.append(f"{key}: []")
+            elif all(re.fullmatch(r"[A-Za-z0-9_/.-]+", str(item)) for item in value):
+                joined = ", ".join(str(item) for item in value)
+                lines.append(f"{key}: [{joined}]")
+            else:
+                lines.append(f"{key}:")
+                for item in value:
+                    lines.append(f"  - {item}")
+            continue
+        if isinstance(value, bool):
+            lines.append(f"{key}: {'true' if value else 'false'}")
+            continue
+        text = str(value)
+        if text == "":
+            lines.append(f'{key}: ""')
+        elif re.fullmatch(r"[A-Za-z0-9_./:-]+", text):
+            lines.append(f"{key}: {text}")
+        else:
+            escaped = text.replace('"', '\\"')
+            lines.append(f'{key}: "{escaped}"')
+    lines.append("---")
+    return "\n".join(lines)
+
+
+def apply_template(template_name: str, title: str) -> str:
+    template_path = TEMPLATES_DIR / f"{template_name}.md"
+    if not template_path.exists():
+        raise SystemExit(f"Missing template: {template_path}")
+    content = load_text(template_path)
+    return content.replace("{{title}}", title).replace("{{date}}", today())
+
+
+def infer_tags(note_type: str, tags: list[str] | None) -> list[str]:
+    base = TYPE_TO_TAGS.get(note_type, []).copy()
+    if tags:
+        for tag in tags:
+            if tag not in base:
+                base.append(tag)
+    return base
+
+
+def create_note(note_type: str, title: str, topic: list[str], source: str, mocs: list[str]) -> Path:
+    ensure_vault_dirs()
+    content = apply_template(note_type, title)
+    data, body = parse_frontmatter(content)
+    data["title"] = title
+    data["tags"] = infer_tags(note_type, data.get("tags") if isinstance(data.get("tags"), list) else None)
+    if topic:
+        data["topic"] = topic
+    if source:
+        data["source"] = source
+    if mocs:
+        data["mocs"] = mocs
+    if note_type == "daily":
+        filename = f"{today()}.md"
+    else:
+        filename = f"{today()}-{slugify(title)}.md"
+    dest_dir = VAULT_DIR / TYPE_TO_DIR[note_type]
+    path = dest_dir / filename
+    if path.exists():
+        return path
+    write_text(path, dump_frontmatter(data) + "\n\n" + body.lstrip("\n"))
+    return path
+
+
+def open_path(path: Path, editor: str | None) -> None:
+    if not editor:
+        return
+    subprocess.run([editor, str(path)], check=False)
+
+
+def update_frontmatter(path: Path) -> None:
+    if not path.exists():
+        raise SystemExit(f"File not found: {path}")
+    text = load_text(path)
+    data, body = parse_frontmatter(text)
+    if not data:
+        return
+    data["updated"] = today()
+    write_text(path, dump_frontmatter(data) + "\n\n" + body.lstrip("\n"))
+
+
+def classify_note(path: Path) -> Path:
+    text = load_text(path)
+    data, _ = parse_frontmatter(text)
+    note_type = str(data.get("type", "note"))
+    if note_type == "daily":
+        target_dir = VAULT_DIR / "daily"
+    elif note_type == "concept":
+        target_dir = VAULT_DIR / "notes"
+    elif note_type == "source":
+        target_dir = VAULT_DIR / "notes"
+    elif note_type == "study-session":
+        target_dir = VAULT_DIR / "notes"
+    elif note_type == "moc":
+        target_dir = VAULT_DIR / "maps"
+    else:
+        target_dir = VAULT_DIR / "inbox"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target = target_dir / path.name
+    if target == path:
+        return path
+    shutil.move(str(path), str(target))
+    return target
+
+
+def collect_notes() -> list[tuple[Path, dict[str, object]]]:
+    notes: list[tuple[Path, dict[str, object]]] = []
+    for root in (VAULT_DIR / "inbox", VAULT_DIR / "notes", VAULT_DIR / "daily"):
+        if not root.exists():
+            continue
+        for path in root.rglob("*.md"):
+            data, _ = parse_frontmatter(load_text(path))
+            if data:
+                notes.append((path, data))
+    return notes
+
+
+def moc_title(slug: str) -> str:
+    return slug.replace("-", " ").title()
+
+
+def relative_note_link(path: Path) -> str:
+    return path.stem
+
+
+def sync_mocs() -> list[Path]:
+    ensure_vault_dirs()
+    grouped: dict[str, list[tuple[Path, dict[str, object]]]] = {}
+    for path, data in collect_notes():
+        mocs = data.get("mocs", [])
+        if isinstance(mocs, str):
+            mocs = [mocs]
+        if not isinstance(mocs, list):
+            continue
+        for moc in mocs:
+            moc_slug = slugify(str(moc))
+            grouped.setdefault(moc_slug, []).append((path, data))
+
+    written: list[Path] = []
+    for moc_slug, entries in grouped.items():
+        moc_path = VAULT_DIR / "maps" / f"{moc_slug}.md"
+        title = moc_title(moc_slug)
+        created = today()
+        if moc_path.exists():
+            existing_data, _ = parse_frontmatter(load_text(moc_path))
+            created = str(existing_data.get("created", created))
+        lines = [
+            "---",
+            f"title: {title}",
+            "tags: [type/moc]",
+            "type: moc",
+            f"topic: [{moc_slug}]",
+            f"created: {created}",
+            f"updated: {today()}",
+            "---",
+            "",
+            f"# {title}",
+            "",
+            "## Indexed Notes",
+        ]
+        ordered = sorted(entries, key=lambda item: (str(item[1].get("type", "")), item[0].name))
+        for note_path, data in ordered:
+            note_title = str(data.get("title") or relative_note_link(note_path))
+            note_type = str(data.get("type", "note"))
+            lines.append(f"- [[{relative_note_link(note_path)}]] - {note_type} - {note_title}")
+        lines.extend(["", "## Related Maps", "-"])
+        write_text(moc_path, "\n".join(lines) + "\n")
+        written.append(moc_path)
+    return written
+
+
+def detect_current_markdown_file() -> Path:
+    path = os.environ.get("OBSIDIAN_CURRENT_FILE")
+    if not path:
+        raise SystemExit("No file path provided")
+    return Path(path).expanduser()
+
+
+def print_path(path: Path) -> None:
+    sys.stdout.write(str(path))
+
+
+def command_new(args: argparse.Namespace) -> int:
+    title = " ".join(args.title)
+    note = create_note(args.note_type, title, parse_csv_list(args.topic), args.source or "", parse_csv_list(args.mocs))
+    if args.sync_mocs:
+        sync_mocs()
+    if args.print_path:
+        print_path(note)
+        return 0
+    open_path(note, None if args.no_open else args.editor)
+    return 0
+
+
+def command_today(args: argparse.Namespace) -> int:
+    note = create_note("daily", today(), ["life"], "", [])
+    if args.print_path:
+        print_path(note)
+        return 0
+    open_path(note, None if args.no_open else args.editor)
+    return 0
+
+
+def command_touch(args: argparse.Namespace) -> int:
+    path = Path(args.path).expanduser() if args.path else detect_current_markdown_file()
+    update_frontmatter(path)
+    if args.print_path:
+        print_path(path)
+    return 0
+
+
+def command_classify(args: argparse.Namespace) -> int:
+    path = Path(args.path).expanduser() if args.path else detect_current_markdown_file()
+    update_frontmatter(path)
+    target = classify_note(path)
+    if args.sync_mocs:
+        sync_mocs()
+    if args.print_path:
+        print_path(target)
+        return 0
+    print(target)
+    return 0
+
+
+def command_sync_mocs(_: argparse.Namespace) -> int:
+    written = sync_mocs()
+    for path in written:
+        print(path)
+    return 0
+
+
+def command_recent(_: argparse.Namespace) -> int:
+    paths = sorted(collect_notes(), key=lambda item: item[0].stat().st_mtime, reverse=True)
+    for path, _ in paths[:10]:
+        print(path)
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="ob", description="Obsidian second-brain helper")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    new = sub.add_parser("new", help="Create a note from a template")
+    new.add_argument("note_type", choices=sorted(SUPPORTED_TYPES))
+    new.add_argument("title", nargs="+")
+    new.add_argument("--topic")
+    new.add_argument("--source")
+    new.add_argument("--mocs")
+    new.add_argument("--editor", default=DEFAULT_EDITOR)
+    new.add_argument("--no-open", action="store_true")
+    new.add_argument("--print-path", action="store_true")
+    new.add_argument("--sync-mocs", action="store_true")
+    new.set_defaults(func=command_new)
+
+    today_cmd = sub.add_parser("today", help="Open or create today's daily note")
+    today_cmd.add_argument("--editor", default=DEFAULT_EDITOR)
+    today_cmd.add_argument("--no-open", action="store_true")
+    today_cmd.add_argument("--print-path", action="store_true")
+    today_cmd.set_defaults(func=command_today)
+
+    touch = sub.add_parser("touch-updated", help="Update the updated field in frontmatter")
+    touch.add_argument("path", nargs="?")
+    touch.add_argument("--print-path", action="store_true")
+    touch.set_defaults(func=command_touch)
+
+    classify = sub.add_parser("classify", help="Move a note to the right folder based on type")
+    classify.add_argument("path", nargs="?")
+    classify.add_argument("--print-path", action="store_true")
+    classify.add_argument("--sync-mocs", action="store_true")
+    classify.set_defaults(func=command_classify)
+
+    moc = sub.add_parser("sync-mocs", help="Rebuild MOC files from mocs metadata")
+    moc.set_defaults(func=command_sync_mocs)
+
+    recent = sub.add_parser("recent", help="List the most recent notes")
+    recent.set_defaults(func=command_recent)
+
+    return parser
+
+
+def main() -> int:
+    ensure_vault_dirs()
+    parser = build_parser()
+    args = parser.parse_args()
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

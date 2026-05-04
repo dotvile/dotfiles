@@ -2,6 +2,7 @@
 export EDITOR='nvim'
 
 export PATH="$HOME/.bin:$PATH"
+export PATH="$HOME/Development/dotfiles/_bin:$PATH"
 # rust
 export PATH="$HOME/.cargo/bin:$PATH"
 # opencode

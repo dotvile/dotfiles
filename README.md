@@ -31,3 +31,7 @@ brew install yq git
 ```
 ./setup.sh
 ```
+
+## Documentacion de Obsidian
+
+- Referencia completa de comandos y flujo: `_docs/obsidian/README.md`

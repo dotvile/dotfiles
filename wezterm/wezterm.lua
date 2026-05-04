@@ -4,6 +4,7 @@ local config = wezterm.config_builder()
 local action = wezterm.action
 
 local mods = "CTRL | ALT"
+
 config = {
 
 	window_background_opacity = 1,

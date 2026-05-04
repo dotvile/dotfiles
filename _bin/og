@@ -1,33 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-# Directory containing markdown files
-VAULT_DIR="/Users/victor/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vile"
-SOURCE_DIR="zettelkasten"
-DEST_DIR="notes"
-
-
-# Iterate through all markdown files in the source directory
-find "$VAULT_DIR/$SOURCE_DIR" -type f -name "*.md" | while read -r file; do
-  echo "Processing $file"
-
-  # Extract the hub from the file. This assumes the hub is on the line immediately following "hub:"
-  hub=$(awk '/hubs:/{getline; print; exit}' "$file" | sed -e 's/^ *- *//' -e 's/^ *//;s/ *$//')
-
-  echo "Found hub $hub"
-
-  # If a hub is found, proceed with moving the file
-  if [ ! -z "$hub" ]; then
-    # Create the target directory if it doesn't exist
-    TARGET_DIR="$VAULT_DIR/$DEST_DIR/$hub"
-    mkdir -p "$TARGET_DIR"
-
-    # Move the file to the target directory
-    mv "$file" "$TARGET_DIR/"
-    echo "Moved $file to $TARGET_DIR"
-  else
-    echo "No hub found for $file"
-  fi
-
-done
-
-echo "Done"
+exec "$HOME/Development/dotfiles/_bin/ob" sync-mocs

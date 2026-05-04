@@ -33,8 +33,14 @@ alias fast='clear && fastfetch'
 # Project Init
 alias initfmt='$HOME/Development/dotfiles/_bin/helpers/init_formatter.sh'
 alias initlint='$HOME/Development/dotfiles/_bin/helpers/init_linter.sh'
+alias initobs='$HOME/Development/dotfiles/_bin/helpers/init_obsidian_templates.sh'
 
 # Obsidian
+alias obd='ob today'
+alias obs='ob new study-session'
+alias obc='ob new concept-note'
+alias obso='ob new source-note'
+alias obm='ob sync-mocs'
 alias oo='cd $HOME/library/Mobile\ Documents/iCloud~md~obsidian/Documents/Vile'
 alias oor='nvim $HOME/library/Mobile\ Documents/iCloud~md~obsidian/Documents/Vile/inbox/*.md'
 alias nvoo='cd $HOME/library/Mobile\ Documents/iCloud~md~obsidian/Documents/Vile && nvim'
