@@ -124,6 +124,14 @@
       ]
     },
     {
+      "description": "Main layer tab and escape swap",
+      "manipulators": [
+        { "type": "basic", "from": { "key_code": "caps_lock", "modifiers": { "optional": ["any"] } }, "to": [ { "key_code": "tab" } ], "conditions": [ { "type": "variable_unless", "name": "corne_symbols", "value": 1 }, { "type": "variable_unless", "name": "corne_movement", "value": 1 } ] },
+        { "type": "basic", "from": { "key_code": "tab", "modifiers": { "optional": ["any"] } }, "to": [ { "key_code": "escape" } ], "conditions": [ { "type": "variable_unless", "name": "corne_symbols", "value": 1 }, { "type": "variable_unless", "name": "corne_movement", "value": 1 } ] },
+        { "type": "basic", "from": { "key_code": "escape", "modifiers": { "optional": ["any"] } }, "to": [ { "key_code": "caps_lock" } ], "conditions": [ { "type": "variable_unless", "name": "corne_symbols", "value": 1 }, { "type": "variable_unless", "name": "corne_movement", "value": 1 } ] }
+      ]
+    },
+    {
       "description": "Home row mods on Corne Dvorak positions",
       "manipulators": [
         { "type": "basic", "from": { "simultaneous": [ { "key_code": "l" }, { "key_code": "d" } ], "simultaneous_options": { "key_down_order": "insensitive", "key_up_order": "insensitive" }, "modifiers": { "optional": ["any"] } }, "to": [ { "key_code": "e", "modifiers": ["right_option"] } ], "conditions": [ { "type": "variable_unless", "name": "corne_symbols", "value": 1 }, { "type": "variable_unless", "name": "corne_movement", "value": 1 } ], "parameters": { "basic.simultaneous_threshold_milliseconds": 300 } },

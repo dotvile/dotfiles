@@ -2,14 +2,15 @@ return {
   "nvim-treesitter/nvim-treesitter",
   lazy = false,
   build = function()
-    local parsers = {
-      "rust",
-      "lua",
-      "c_sharp",
-      "luadoc",
-      "javascript",
-      "typescript",
-      "python",
+      local parsers = {
+        "rust",
+        "lua",
+        "c_sharp",
+        "sql",
+        "luadoc",
+        "javascript",
+        "typescript",
+        "python",
       "go",
       "markdown",
       "markdown_inline",

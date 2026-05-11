@@ -1,21 +1,4 @@
--- Helper for .NET DLL detection
-local function find_debug_dll()
-  local cwd = vim.fn.getcwd()
-  local patterns = {
-    "/bin/Debug/net9.0/*.dll",
-    "/bin/Debug/net8.0/*.dll",
-    "/bin/Debug/*/*.dll",
-  }
-  for _, pat in ipairs(patterns) do
-    local matches = vim.fn.glob(cwd .. pat, true, true)
-    for _, dll in ipairs(matches) do
-      if not dll:lower():match("test") then
-        return dll
-      end
-    end
-  end
-  return nil
-end
+local dotnet = require("functions.dotnet")
 
 local function setup_adapters(dap)
   local mason_path = vim.fn.stdpath("data") .. "/mason"
@@ -59,6 +42,7 @@ local function setup_adapters(dap)
     command = vim.fn.executable(mason_dbg) == 1 and mason_dbg or "netcoredbg",
     args = { "--interpreter=vscode" },
   }
+  dap.adapters.netcoredbg = dap.adapters.coreclr
 end
 
 local function setup_configurations(dap)
@@ -124,12 +108,13 @@ local function setup_configurations(dap)
       name = "Launch .NET",
       request = "launch",
       program = function()
-        vim.fn.jobstart("dotnet build", { detach = true })
-        local dll = find_debug_dll()
-        if dll then
-          return dll
+        local dll, err = dotnet.build_and_find_dll()
+        if not dll then
+          vim.notify(err or "Unable to locate debug DLL", vim.log.levels.ERROR)
+          return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
         end
-        return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
+
+        return dll
       end,
     },
     {

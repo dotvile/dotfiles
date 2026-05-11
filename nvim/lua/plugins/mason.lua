@@ -8,6 +8,10 @@ return {
     priority = 100,
     build = ":MasonUpdate",
     opts = {
+      registries = {
+        "github:mason-org/mason-registry",
+        "github:Crashdummyy/mason-registry",
+      },
       ui = {
         icons = {
           package_installed = "✓",
@@ -48,6 +52,8 @@ return {
         "shfmt",
         "goimports",
         "csharpier",
+        "roslyn",
+        "sqls",
 
         -- Linters
         "eslint_d",
