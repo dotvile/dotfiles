@@ -1,5 +1,8 @@
 -- mods for keybindings
 local kmap = vim.keymap
+local dotnet = require("functions.dotnet")
+local float_term = require("functions.floating_terminal")
+local vault_root = vim.fn.expand("~/Documents/vault")
 
 local function ob_new(note_type)
   return function()
@@ -35,6 +38,43 @@ local function ob_current_path_cmd(subcommand)
   return vim.trim(result)
 end
 
+local function run_dotnet_command(title, args)
+  local ok, message = dotnet.run(args)
+  local level = ok and vim.log.levels.INFO or vim.log.levels.ERROR
+  vim.notify(message ~= "" and message or (ok and "Done" or "Command failed"), level, { title = title })
+end
+
+local function sqlearning_context()
+  local current = vim.api.nvim_buf_get_name(0)
+  if current == "" then
+    return nil
+  end
+
+  local repo_root, exercise_rel = current:match("^(.*)/sqlearning/(lessons/.+)/[^/]+$")
+  if not repo_root or not exercise_rel then
+    return nil
+  end
+
+  return {
+    repo_root = repo_root,
+    exercise_rel = exercise_rel,
+  }
+end
+
+local function run_sqlearning_test()
+  local ctx = sqlearning_context()
+  if not ctx then
+    vim.notify("Open an sqlearning exercise file", vim.log.levels.WARN)
+    return
+  end
+
+  float_term.run({
+    "bash",
+    "-lc",
+    string.format("cd %q && ./bin/sqlearning test %q", ctx.repo_root .. "/sqlearning", ctx.exercise_rel),
+  })
+end
+
 -- mod on normal mode
 kmap.set("n", "<leader>bd", ":bd<cr>", { desc = "Close current buffer" })
 kmap.set("n", "<leader>bb", ":b#<cr>", { desc = "Close current buffer" })
@@ -44,9 +84,83 @@ kmap.set("n", "<leader>s", ":%s#", { desc = "Open replace mode" })
 kmap.set("", "<leader>lk", ":WhichKey <cr>", { desc = "List keybindings" })
 -- go
 kmap.set("n", "<leader>god", ":go doc")
+-- dotnet
+kmap.set("n", "<leader>mr", ":DotnetRestore<cr>", { desc = "Dotnet restore" })
+kmap.set("n", "<leader>mb", ":DotnetBuild<cr>", { desc = "Dotnet build" })
+kmap.set("n", "<leader>mc", ":DotnetClean<cr>", { desc = "Dotnet clean" })
+kmap.set("n", "<leader>tn", ":DotnetTestNearest<cr>", { desc = "Run nearest .NET test" })
+kmap.set("n", "<leader>tf", ":DotnetTestFile<cr>", { desc = "Run tests in file" })
+kmap.set("n", "<leader>td", ":DotnetTestDebugNearest<cr>", { desc = "Debug nearest .NET test" })
+kmap.set("n", "<leader>ts", ":DotnetTestSummary<cr>", { desc = "Toggle test summary" })
+kmap.set("n", "<leader>to", ":DotnetTestOutput<cr>", { desc = "Toggle test output" })
+kmap.set("n", "<leader>tr", function()
+  float_term.toggle_shell()
+end, { desc = "Toggle floating terminal" })
+kmap.set("n", "<leader>st", function()
+  run_sqlearning_test()
+end, { desc = "Test sqlearning exercise" })
+
+vim.api.nvim_create_user_command("DotnetRoot", function()
+  vim.notify(dotnet.root(), vim.log.levels.INFO, { title = "Dotnet root" })
+end, {})
+
+vim.api.nvim_create_user_command("FloatTerm", function()
+  float_term.toggle_shell()
+end, {})
+
+vim.api.nvim_create_user_command("SqLearningTest", function()
+  run_sqlearning_test()
+end, {})
+
+vim.api.nvim_create_user_command("DotnetRestore", function()
+  local target = dotnet.target()
+  if target then
+    run_dotnet_command("Dotnet restore", { "restore", target })
+  else
+    run_dotnet_command("Dotnet restore", { "restore" })
+  end
+end, {})
+
+vim.api.nvim_create_user_command("DotnetBuild", function()
+  local target = dotnet.target()
+  if target then
+    run_dotnet_command("Dotnet build", { "build", target })
+  else
+    run_dotnet_command("Dotnet build", { "build" })
+  end
+end, {})
+
+vim.api.nvim_create_user_command("DotnetClean", function()
+  local target = dotnet.target()
+  if target then
+    run_dotnet_command("Dotnet clean", { "clean", target })
+  else
+    run_dotnet_command("Dotnet clean", { "clean" })
+  end
+end, {})
+
+vim.api.nvim_create_user_command("DotnetTestNearest", function()
+  require("neotest").run.run()
+end, {})
+
+vim.api.nvim_create_user_command("DotnetTestFile", function()
+  require("neotest").run.run(vim.fn.expand("%"))
+end, {})
+
+vim.api.nvim_create_user_command("DotnetTestDebugNearest", function()
+  require("neotest").run.run({ strategy = "dap" })
+end, {})
+
+vim.api.nvim_create_user_command("DotnetTestSummary", function()
+  require("neotest").summary.toggle()
+end, {})
+
+vim.api.nvim_create_user_command("DotnetTestOutput", function()
+  require("neotest").output_panel.toggle()
+end, {})
 -- obsidian
 -- navigate to vault
-kmap.set("n", "<leader>oo", ":cd /Users/victor/Library/Mobile\\ Documents/iCloud~md~obsidian/Documents/Vile<cr>")
+kmap.set("n", "<leader>oo", ":cd " .. vim.fn.fnameescape(vault_root) .. "<cr>")
 -- open today's daily note
 kmap.set("n", "<leader>od", ":ObsidianToday<cr>")
 kmap.set("n", "<leader>oc", ob_new("concept-note"), { desc = "Create concept note" })
@@ -76,7 +190,7 @@ kmap.set("n", "<leader>otf", ":s/\\(# \\)[^_]*_/\\1/ | s/-/ /g<cr>")
 kmap.set(
   "n",
   "<leader>ok",
-  ":!mv '%:p' /Users/victor/Library/Mobile\\ Documents/iCloud~md~obsidian/Documents/Vile/zettelkasten<cr>:bd<cr>"
+  ":!mv '%:p' " .. vim.fn.fnameescape(vault_root .. "/zettelkasten") .. "<cr>:bd<cr>"
 )
 -- delete file in current buffer
 kmap.set("n", "<leader>odd", ":!rm '%:p'<cr>:bd<cr>")

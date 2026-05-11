@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 
-VAULT_DIR = Path.home() / "Library/Mobile Documents/iCloud~md~obsidian/Documents/Vile"
+VAULT_DIR = Path.home() / "Documents/vault"
 TEMPLATES_DIR = VAULT_DIR / "templates"
 DEFAULT_EDITOR = os.environ.get("EDITOR", "nvim")
 SUPPORTED_TYPES = {"default", "study-session", "concept-note", "source-note", "daily"}
@@ -44,7 +44,7 @@ def today() -> str:
 
 
 def ensure_vault_dirs() -> None:
-    for name in ("inbox", "notes", "maps", "templates", "daily"):
+    for name in ("inbox", "notes", "maps", "templates", "daily", "zettelkasten"):
         (VAULT_DIR / name).mkdir(parents=True, exist_ok=True)
 
 
