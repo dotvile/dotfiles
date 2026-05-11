@@ -1,0 +1,13 @@
+# sqls configuration for PostgreSQL / MSSQL.
+# Fill in your own connection details per machine or repo.
+#
+# Example:
+# connections:
+#   - alias: local_pg
+#     driver: postgresql
+#     dataSourceName: "host=127.0.0.1 port=5432 user=postgres password=postgres dbname=app sslmode=disable"
+#   - alias: local_mssql
+#     driver: mssql
+#     dataSourceName: "sqlserver://sa:YourStrong!Passw0rd@127.0.0.1:1433?database=master"
+
+connections: []
