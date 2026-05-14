@@ -86,6 +86,15 @@ return {
       sources = sources.gitcommit,
     })
 
+    cmp.setup.filetype({ "sql", "mysql", "plsql", "tsql" }, {
+      sources = cmp.config.sources(
+        {
+          { name = "vim-dadbod-completion" },
+        },
+        sources.default
+      ),
+    })
+
     cmp.setup.cmdline({ "/", "?" }, {
       mapping = mappings.cmdline.search,
       sources = sources.cmdline.search,

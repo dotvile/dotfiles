@@ -20,6 +20,12 @@ if [[ -f /opt/homebrew/opt/asdf/libexec/asdf.sh ]]; then
   . /opt/homebrew/opt/asdf/libexec/asdf.sh
 fi
 
+# Local, non-versioned environment overrides.
+# Copy `_zsh/local.zsh.example` to `_zsh/local.zsh` and fill in your values.
+if [[ -f "$HOME/Development/dotfiles/_zsh/local.zsh" ]]; then
+  source "$HOME/Development/dotfiles/_zsh/local.zsh"
+fi
+
 
 # De-dup and helper PATH
 typeset -U path
