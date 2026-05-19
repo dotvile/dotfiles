@@ -31,7 +31,6 @@ link_config_folders() {
     local app
     app="$(basename "$folder")"
     [[ $app =~ ^_ ]] && continue
-    [[ $app == "karabiner" ]] && continue
     [[ -z "$(ls -A "$folder")" ]] && continue
     create_symlink "$folder" "$HOME/.config/$app"
   done

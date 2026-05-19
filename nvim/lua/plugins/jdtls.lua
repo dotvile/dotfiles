@@ -10,8 +10,6 @@ end
 local function existing_config_dir(jdtls_path)
   local candidates = {
     jdtls_path .. "/config_linux",
-    jdtls_path .. "/config_mac_arm",
-    jdtls_path .. "/config_mac",
   }
 
   for _, path in ipairs(candidates) do
