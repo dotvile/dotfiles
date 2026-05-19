@@ -35,6 +35,8 @@ local function ob_current_path_cmd(subcommand)
   return vim.trim(result)
 end
 
+local obsidian_vault_dir = vim.g.obsidian_vault_dir or vim.fn.expand("~/Documents/Obsidian/Vile")
+
 -- mod on normal mode
 kmap.set("n", "<leader>bd", ":bd<cr>", { desc = "Close current buffer" })
 kmap.set("n", "<leader>bb", ":b#<cr>", { desc = "Close current buffer" })
@@ -46,7 +48,9 @@ kmap.set("", "<leader>lk", ":WhichKey <cr>", { desc = "List keybindings" })
 kmap.set("n", "<leader>god", ":go doc")
 -- obsidian
 -- navigate to vault
-kmap.set("n", "<leader>oo", ":cd /Users/victor/Library/Mobile\\ Documents/iCloud~md~obsidian/Documents/Vile<cr>")
+kmap.set("n", "<leader>oo", function()
+  vim.cmd("cd " .. vim.fn.fnameescape(obsidian_vault_dir))
+end, { desc = "Go to Obsidian vault" })
 -- open today's daily note
 kmap.set("n", "<leader>od", ":ObsidianToday<cr>")
 kmap.set("n", "<leader>oc", ob_new("concept-note"), { desc = "Create concept note" })
@@ -76,7 +80,24 @@ kmap.set("n", "<leader>otf", ":s/\\(# \\)[^_]*_/\\1/ | s/-/ /g<cr>")
 kmap.set(
   "n",
   "<leader>ok",
-  ":!mv '%:p' /Users/victor/Library/Mobile\\ Documents/iCloud~md~obsidian/Documents/Vile/zettelkasten<cr>:bd<cr>"
+  function()
+    local current = vim.api.nvim_buf_get_name(0)
+    if current == "" then
+      vim.notify("No current file", vim.log.levels.WARN)
+      return
+    end
+
+    local target_dir = obsidian_vault_dir .. "/zettelkasten"
+    vim.fn.mkdir(target_dir, "p")
+    local result = vim.fn.system({ "mv", current, target_dir })
+    if vim.v.shell_error ~= 0 then
+      vim.notify(vim.trim(result), vim.log.levels.ERROR)
+      return
+    end
+
+    vim.cmd("bd")
+  end,
+  { desc = "Move note to zettelkasten" }
 )
 -- delete file in current buffer
 kmap.set("n", "<leader>odd", ":!rm '%:p'<cr>:bd<cr>")

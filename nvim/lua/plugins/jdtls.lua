@@ -7,19 +7,43 @@ local function find_launcher_jar(jdtls_path)
   return nil
 end
 
+local function existing_config_dir(jdtls_path)
+  local candidates = {
+    jdtls_path .. "/config_linux",
+    jdtls_path .. "/config_mac_arm",
+    jdtls_path .. "/config_mac",
+  }
+
+  for _, path in ipairs(candidates) do
+    if vim.fn.isdirectory(path) == 1 then
+      return path
+    end
+  end
+
+  return nil
+end
+
 return {
   "mfussenegger/nvim-jdtls",
   ft = { "java" },
   config = function()
     local jdtls = require("jdtls")
     local home = os.getenv("HOME")
-    local jdtls_path = home .. "/.cache/jdtls"
+    local mason_jdtls = vim.fn.stdpath("data") .. "/mason/packages/jdtls"
+    local legacy_jdtls = home .. "/.cache/jdtls"
+    local jdtls_path = vim.fn.isdirectory(mason_jdtls) == 1 and mason_jdtls or legacy_jdtls
     local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
     local workspace_folder = home .. "/.cache/jdtls/workspace/" .. project_name
 
     local launcher_jar = find_launcher_jar(jdtls_path)
     if not launcher_jar then
-      vim.notify("JDTLS launcher jar not found", vim.log.levels.ERROR)
+      vim.notify("JDTLS launcher jar not found", vim.log.levels.WARN)
+      return
+    end
+
+    local config_dir = existing_config_dir(jdtls_path)
+    if not config_dir then
+      vim.notify("JDTLS config directory not found", vim.log.levels.WARN)
       return
     end
 
@@ -40,7 +64,7 @@ return {
         "-jar",
         launcher_jar,
         "-configuration",
-        jdtls_path .. "/config_mac_arm",
+        config_dir,
         "-data",
         workspace_folder,
       },

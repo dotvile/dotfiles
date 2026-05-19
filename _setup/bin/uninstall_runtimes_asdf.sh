@@ -10,7 +10,7 @@ CONFIRM="${CONFIRM:-0}" # 1 = ejecutar; 0 = dry-run
 
 ensure_asdf() {
   if ! command -v asdf > /dev/null 2>&1; then
-    local asdf_sh="/opt/homebrew/opt/asdf/libexec/asdf.sh"
+    local asdf_sh="${ASDF_DIR:-$HOME/.asdf}/asdf.sh"
     [[ -f $asdf_sh ]] && . "$asdf_sh"
   fi
   command -v asdf > /dev/null 2>&1 || {

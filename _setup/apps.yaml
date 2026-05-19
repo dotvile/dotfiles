@@ -4,24 +4,32 @@ apps:
   - fzf
   - ripgrep
   - starship
-  - { brew: uv }
+  - zsh
+  - xclip
+  - uv
+  - go-yq
+  - tmux
+  - yazi
 
   # Runtime manager
-  - { brew: asdf }
+  # asdf is not in the official Arch repos; install it separately.
 
   # Editor/terminal
-  - { brew: neovim, apt: neovim, pacman: neovim }
-  - { brew: wezterm }
+  - neovim
+  - wezterm
 
-  # Desktop / WM (macOS)
-  - { brew: raycast }
-  - { brew: nikitabobko/tap/aerospace }
+  # Window manager
+  - i3-wm
+  - i3status
+  - rofi
+  - dunst
+  - picom
 
   # Docker (simple)
-  - { brew: docker, apt: docker.io, pacman: docker }
+  - docker
 
-  # Fonts (macOS via cask-fonts)
-  - { brew: font-recursive-mono-nerd-font }
-  - { brew: font-jetbrains-mono-nerd-font }
-  - { brew: font-fira-code-nerd-font }
-  - { brew: font-symbols-only-nerd-font }
+  # Fonts
+  - ttf-recursive-nerd
+  - ttf-jetbrains-mono-nerd
+  - ttf-firacode-nerd
+  - ttf-nerd-fonts-symbols

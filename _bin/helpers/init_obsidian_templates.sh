@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 SOURCE_DIR="$HOME/Development/dotfiles/_templates/obsidian"
-VAULT_DIR="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vile"
+VAULT_DIR="${OBSIDIAN_VAULT_DIR:-$HOME/Documents/Obsidian/Vile}"
 TARGET_DIR="$VAULT_DIR/templates"
 
 if [[ ! -d "$SOURCE_DIR" ]]; then

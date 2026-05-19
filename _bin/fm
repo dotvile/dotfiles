@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+target_dir="${1:-$HOME}"
+
+exec wezterm start --class file-manager --cwd "$target_dir" yazi

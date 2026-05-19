@@ -1,0 +1,106 @@
+Custom i3 keybindings cheat sheet:
+
+--> to update this run the following command:
+wget --backups=1 https://raw.githubusercontent.com/endeavouros-team/endeavouros-i3wm-setup/main/.config/i3/keybindings -P ~/.config/i3/
+
+All sources and updates are available at GitHub:
+https://github.com/endeavouros-team/endeavouros-i3wm-setup
+
+For reference consult our WIKI:
+https://discovery.endeavouros.com/window-tiling-managers/i3-wm/
+
+ = windows key
+
+# start wezterm
++Return
+
+# kill focused window
++q
+
+# Application menu search by typing (fancy Rofi menu):
++Space
+
+# Window switcher menu (fancy Rofi menu):
++t
+
+# fancy exit-menu on bottom right:
++Shift+e
+
+# Lock the system
+# lock with a picture or blurring the screen (options in config)
++l
+
+# reload the configuration file
++Shift+c
+
+# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
++Shift+r
+
+# change window focus
++Left focus left
++Down focus down
++Up focus up
++Right focus right
+
+# move a focused window
++Shift+Left move left
++Shift+Down move down
++Shift+Up move up
++Shift+Right move right
+
+# split in horizontal orientation
+Ctrl+.
+
+# stack layout
+Ctrl+,
+
+# enter fullscreen mode for the focused container
++Shift+Space fullscreen toggle
+
+# floating toggle
++Alt+f
+
+# switch focus between tiling and floating
++Shift+f
+
+# split+move toward direction
++Alt+Left
++Alt+Down
++Alt+Up
++Alt+Right
+
+# next/prev workspace
++Ctrl+Right
++Ctrl+Left
+
+# focus output
++Ctrl+Up
++Ctrl+Down
+
+# focus main monitor
++Alt+m
+
+# resize width
++Shift+-
++Shift+=
+
+# workspaces
+F1..F9 go to workspace
+Shift+F1..Shift+F9 move window to workspace
+
+# service mode
+Ctrl+Escape
+
+## Multimedia Keys
+
+# Redirect sound to headphones
++p
+
+## App shortcuts
++d starts Godot Mono on ws9
++b starts Firefox
++g starts GitHub in Firefox on ws4
++f starts Yazi in WezTerm
++y starts YouTube in Firefox
+ +Shift+y starts YouTube Music in Firefox
+ Button screenshot

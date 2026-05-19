@@ -26,7 +26,7 @@ config = {
 			opacity = 0.75,
 		},
 	},
-	color_scheme = "Tokio Night",
+	color_scheme = "Tokyo Night",
 	font = wezterm.font("RecMonoLinear Nerd Font Mono"),
 	font_size = 24.0,
 	line_height = 1.25,

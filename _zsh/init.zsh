@@ -18,4 +18,4 @@ init_starship
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # opencode
-export PATH=/Users/victor/.opencode/bin:$PATH
+export PATH="$HOME/.opencode/bin:$PATH"

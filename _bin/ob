@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 
-VAULT_DIR = Path.home() / "Library/Mobile Documents/iCloud~md~obsidian/Documents/Vile"
+VAULT_DIR = Path(os.environ.get("OBSIDIAN_VAULT_DIR", str(Path.home() / "Documents/Obsidian/Vile"))).expanduser()
 TEMPLATES_DIR = VAULT_DIR / "templates"
 DEFAULT_EDITOR = os.environ.get("EDITOR", "nvim")
 SUPPORTED_TYPES = {"default", "study-session", "concept-note", "source-note", "daily"}

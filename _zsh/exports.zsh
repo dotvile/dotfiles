@@ -1,24 +1,19 @@
 # --- editor
 export EDITOR='nvim'
+export VISUAL='nvim'
 
 export PATH="$HOME/.bin:$PATH"
 export PATH="$HOME/Development/dotfiles/_bin:$PATH"
 # rust
 export PATH="$HOME/.cargo/bin:$PATH"
-# opencode
-export PATH="$HOME/.zshrc:$PATH"
 #local
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.opencode/bin:$PATH"
 
-# --- Homebrew 
-if [[ -x /opt/homebrew/bin/brew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
+export DOTFILES_OS="$(uname -s)"
+export OBSIDIAN_VAULT_DIR="${OBSIDIAN_VAULT_DIR:-$HOME/Documents/Obsidian/Vile}"
 
-# asdf 
-if [[ -f /opt/homebrew/opt/asdf/libexec/asdf.sh ]]; then
-  . /opt/homebrew/opt/asdf/libexec/asdf.sh
-fi
+export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
 
 # Local, non-versioned environment overrides.
 # Copy `_zsh/local.zsh.example` to `_zsh/local.zsh` and fill in your values.
@@ -35,9 +30,8 @@ path_prepend() {
   done
 }
 
-# Force shims/bin from asdf first
-ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
-path_prepend "$ASDF_DIR/shims" "$ASDF_DIR/bin"
+# Force shims first for asdf >= 0.16 binary install.
+path_prepend "$ASDF_DATA_DIR/shims"
 
 # JAVA_HOME from asdf
 if command -v asdf >/dev/null 2>&1; then
@@ -46,8 +40,6 @@ if command -v asdf >/dev/null 2>&1; then
 fi
 
 # PNPM (NO Corepack)
-# export PNPM_HOME="$HOME/Library/pnpm"; path_prepend "$PNPM_HOME"
+# export PNPM_HOME="$HOME/.local/share/pnpm"; path_prepend "$PNPM_HOME"
 # Go tools (go install ...@latest)
 # export GOPATH="${GOPATH:-$HOME/go}"
-# .NET by cask
-#[[ -x /usr/local/share/dotnet/dotnet ]] && path_prepend "/usr/local/share/dotnet" "/usr/local/bin"

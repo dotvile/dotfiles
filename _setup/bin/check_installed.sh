@@ -3,15 +3,8 @@ set -Eeuo pipefail
 
 APPS_FILE="${1:-_setup/apps.yaml}"
 
-# Detecta PM
-if command -v brew > /dev/null 2>&1; then
-  PM="brew"
-elif command -v apt > /dev/null 2>&1; then
-  PM="apt"
-elif command -v pacman > /dev/null 2>&1; then
-  PM="pacman"
-else
-  echo "❌ No se detectó gestor (brew/apt/pacman)"
+if ! command -v pacman > /dev/null 2>&1; then
+  echo "❌ Este script espera un sistema con pacman"
   exit 1
 fi
 
@@ -24,41 +17,19 @@ command -v yq > /dev/null 2>&1 || {
   exit 1
 }
 
-echo "=== Apps declaradas en YAML (PM=$PM) ==="
+echo "=== Apps declaradas en YAML (PM=pacman) ==="
 
-installed_formula=0
-installed_cask=0
 missing=0
 
 while IFS= read -r pkg; do
   [ -z "$pkg" ] && continue
-  case "$PM" in
-    brew)
-      tok="${pkg##*/}"
-      if brew list --formula --versions -- "$tok" > /dev/null 2>&1; then
-        printf '✓ %s [formula]\n' "$tok"
-        installed_formula=$((installed_formula + 1))
-      elif brew list --cask --versions -- "$tok" > /dev/null 2>&1; then
-        printf '✓ %s [cask]\n' "$tok"
-        installed_cask=$((installed_cask + 1))
-      else
-        printf '✗ %s (missing)\n' "$tok"
-        missing=$((missing + 1))
-      fi
-      ;;
-    apt)
-      dpkg -s "$pkg" > /dev/null 2>&1 && printf '✓ %s\n' "$pkg" || printf '✗ %s (missing)\n' "$pkg"
-      ;;
-    pacman)
-      pacman -Qi "$pkg" > /dev/null 2>&1 && printf '✓ %s\n' "$pkg" || printf '✗ %s (missing)\n' "$pkg"
-      ;;
-  esac
-done < <(
-  PM="$PM" yq -r '
-    (.apps[] | select(tag=="!!str")),
-    (.apps[] | select(tag=="!!map") | .[env(PM)] | select(. != null))
-  ' "$APPS_FILE" | awk 'NF && !seen[$0]++'
-)
+  if pacman -Qi "$pkg" > /dev/null 2>&1; then
+    printf '✓ %s\n' "$pkg"
+  else
+    printf '✗ %s (missing)\n' "$pkg"
+    missing=$((missing + 1))
+  fi
+done < <(yq -r '.apps[] | select(. != null)' "$APPS_FILE" | awk 'NF && !seen[$0]++')
 
 echo
 echo "=== Runtimes en PATH (asdf/Corepack) ==="
@@ -103,5 +74,5 @@ if command -v asdf > /dev/null 2>&1; then
 fi
 
 echo
-echo "Resumen YAML: brew formula: $installed_formula, brew cask: $installed_cask. $missing faltan."
+echo "Resumen YAML: $missing faltan."
 # exit "$missing"  # <- descomenta si quieres modo estricto

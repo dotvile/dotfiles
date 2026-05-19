@@ -6,10 +6,6 @@ warn() { log "⚠️  $*"; }
 err() { log "❌ $*"; }
 
 ensure_asdf() {
-  if ! command -v asdf > /dev/null 2>&1; then
-    local asdf_sh="/opt/homebrew/opt/asdf/libexec/asdf.sh"
-    [[ -f $asdf_sh ]] && . "$asdf_sh"
-  fi
   command -v asdf > /dev/null 2>&1 || {
     err "asdf no disponible"
     exit 1
@@ -75,7 +71,6 @@ install_and_set_user() {
     warn "asdf install $tool $ver falló; continúo"
     return 0
   fi
-  # asdf >= 0.16: sustituto de `global`
   log "🏠 asdf set -u $tool $ver"
   asdf set -u "$tool" "$ver" || warn "asdf set -u $tool $ver falló; continúo"
   asdf reshim "$tool" "$ver" || true

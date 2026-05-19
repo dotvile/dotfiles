@@ -89,15 +89,11 @@ return {
         end,
       })
 
-      -- Confirm before exit while installing
+      -- Avoid trapping exits forever if background installs are noisy.
       vim.api.nvim_create_autocmd("VimLeavePre", {
         callback = function()
           if vim.g.mason_installing then
-            local choice = vim.fn.confirm("Mason is still installing tools. Exit anyway?", "&Wait\n&Exit", 1)
-            if choice == 1 then
-              -- User chose to wait, abort exit
-              error("Installation in progress")
-            end
+            vim.notify("Mason is still installing tools in background.", vim.log.levels.WARN)
           end
         end,
       })

@@ -1,16 +1,22 @@
+local obsidian_vault_dir = os.getenv("OBSIDIAN_VAULT_DIR") or vim.fn.expand("~/Documents/Obsidian/Vile")
+
 return {
   "epwalsh/obsidian.nvim",
   version = "*",
   lazy = true,
+  enabled = vim.fn.isdirectory(obsidian_vault_dir) == 1,
   ft = "markdown",
   dependencies = {
     "nvim-lua/plenary.nvim",
   },
+  init = function()
+    vim.g.obsidian_vault_dir = obsidian_vault_dir
+  end,
   opts = {
     workspaces = {
       {
         name = "vileonbuild",
-        path = "/Users/victor/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vile",
+        path = obsidian_vault_dir,
       },
     },
     notes_subdir = "inbox",
@@ -47,7 +53,7 @@ return {
   config = function(_, opts)
     require("obsidian").setup(opts)
 
-    local vault_root = "/Users/victor/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vile"
+    local vault_root = obsidian_vault_dir
     local group = vim.api.nvim_create_augroup("obsidian_second_brain", { clear = true })
 
     local function update_updated_field(bufnr)

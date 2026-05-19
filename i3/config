@@ -1,0 +1,4 @@
+# i3 entrypoint.
+# Keep this file short and move real config into conf.d/.
+
+include ~/.config/i3/conf.d/*.conf

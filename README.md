@@ -4,31 +4,31 @@
 
 - **zsh** as shell
 - **sudo** available (Linux)
-- **brew** installed (Homebrew (MacOS))
 - **yq** installed for YAML on CLI
 - **git** installed
 
-### Install Homebrew
+## EndeavourOS / Arch
 
+```bash
+sudo pacman -Syu
+sudo pacman -S --needed git zsh go-yq neovim tmux wezterm fastfetch fzf ripgrep starship uv docker
 ```
 
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-eval "$(/opt/homebrew/bin/brew shellenv)"
-source ~/.zshrc
-brew --version
+Optional fonts for your WezTerm config:
 
+```bash
+sudo pacman -S --needed ttf-recursive-nerd ttf-jetbrains-mono-nerd ttf-firacode-nerd ttf-nerd-fonts-symbols
 ```
 
-### Install yq and git
+If you want to keep using your Obsidian helpers, set your vault path before opening a shell:
 
-```
-#MacOS
-brew install yq git
+```bash
+export OBSIDIAN_VAULT_DIR="$HOME/Documents/Obsidian/Vile"
 ```
 
 ### Install config
 
-```
+```bash
 ./setup.sh
 ```
 
