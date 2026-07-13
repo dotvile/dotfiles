@@ -100,13 +100,11 @@ main() {
     install_and_set_user nodejs "$ver"
   fi
 
-  # Java y .NET desactivados por defecto en el homelab (innecesarios; añaden peso).
-  # Descoméntalos si vas a desarrollar JVM/.NET en el servidor.
-  # log "==> Java (Temurin 21)"
-  # if plugin_add_or_update java https://github.com/halcyon/asdf-java.git; then
-  #   ver="$(resolve_latest java 'temurin-21')"
-  #   install_and_set_user java "$ver"
-  # fi
+  log "==> Java (Temurin 21)"
+  if plugin_add_or_update java https://github.com/halcyon/asdf-java.git; then
+    ver="$(resolve_latest java 'temurin-21')"
+    install_and_set_user java "$ver"
+  fi
 
   log "==> Python"
   if plugin_add_or_update python https://github.com/danhper/asdf-python.git; then
@@ -120,11 +118,11 @@ main() {
     install_and_set_user golang "$ver"
   fi
 
-  # log "==> .NET SDK"
-  # if plugin_add_or_update dotnet-core https://github.com/emersonsoares/asdf-dotnet-core.git; then
-  #   ver="$(resolve_latest dotnet-core)"
-  #   install_and_set_user dotnet-core "$ver"
-  # fi
+  log "==> .NET SDK"
+  if plugin_add_or_update dotnet-core https://github.com/emersonsoares/asdf-dotnet-core.git; then
+    ver="$(resolve_latest dotnet-core)"
+    install_and_set_user dotnet-core "$ver"
+  fi
 
   log "==> pnpm via Corepack"
   if command -v corepack > /dev/null 2>&1; then

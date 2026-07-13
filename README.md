@@ -38,8 +38,9 @@ Cierra y reabre la sesión SSH: `~/.zshrc` (enlazado a `_zsh/init.zsh`) cargará
 3. **Extras** fuera de repos: **starship** (script oficial) y **neovim ≥0.10** (release oficial).
 4. **Symlinks**: `~/.zshrc → _zsh/init.zsh`, y cada carpeta de config (`nvim`, `starship`) a
    `~/.config/`.
-5. **Runtimes con asdf** (`_setup/bin/install_runtimes.sh`): Node, Python, Go (Java y .NET vienen
-   desactivados; descoméntalos en el script si los necesitas).
+5. **Runtimes con asdf** (`_setup/bin/install_runtimes.sh`): Node, Python, Go, Java (Temurin 21) y
+   .NET SDK — misma paridad que el entorno macOS (necesario para el tooling C#/.NET de Neovim:
+   csharpier, roslyn, netcoredbg).
 
 ## Notas
 
