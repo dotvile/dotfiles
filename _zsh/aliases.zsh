@@ -1,46 +1,38 @@
-#General
+# General
 alias ..='cd ..'
 alias ...='cd ../..'
+alias c='clear'
+alias ll='ls -lah'
 
 # Neovim
-alias nvdot='cd ~/Development/dotfiles && nvim'
-alias nvc='cd ~/Development/dotfiles/nvim && nvim'
-#Java
+alias nvdot='cd $DOTFILES_DIR && nvim'
+alias nvc='cd $DOTFILES_DIR/nvim && nvim'
+
+# Java
 alias jc='javac'
 alias jx='java'
 # Go
 alias got='go test -bench=. -benchmem -cover'
-#Python
+# Python
 alias py='python3'
 alias activate="source .venv/bin/activate"
 
-# Brew
-alias updall='brew update && brew upgrade'
-alias buni='brew uninstall'
-alias bi='brew install'
-alias bt='brew tap'
+# apt (gestión de paquetes del sistema)
+alias updall='sudo apt update && sudo apt full-upgrade -y'
+alias api='sudo apt install -y'
+alias apr='sudo apt remove'
+alias aps='apt search'
 
-# Apps
-alias dock='open /Applications/Docker.app/'
-alias disc='open /Applications/Discord.app/'
-alias oa='open -a'
+# Docker (homelab)
+alias dps='docker ps'
+alias dpsa='docker ps -a'
+alias dcu='docker compose up -d'
+alias dcd='docker compose down'
+alias dcl='docker compose logs -f'
 
 # Misc
-alias c='clear'
-alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
 alias fast='clear && fastfetch'
 
-# Project Init
-alias initfmt='$HOME/Development/dotfiles/_bin/helpers/init_formatter.sh'
-alias initlint='$HOME/Development/dotfiles/_bin/helpers/init_linter.sh'
-alias initobs='$HOME/Development/dotfiles/_bin/helpers/init_obsidian_templates.sh'
-
-# Obsidian
-alias obd='ob today'
-alias obs='ob new study-session'
-alias obc='ob new concept-note'
-alias obso='ob new source-note'
-alias obm='ob sync-mocs'
-alias oo='cd $HOME/library/Mobile\ Documents/iCloud~md~obsidian/Documents/Vile'
-alias oor='nvim $HOME/library/Mobile\ Documents/iCloud~md~obsidian/Documents/Vile/inbox/*.md'
-alias nvoo='cd $HOME/library/Mobile\ Documents/iCloud~md~obsidian/Documents/Vile && nvim'
+# Project Init (helpers del repo)
+alias initfmt='$DOTFILES_DIR/_bin/helpers/init_formatter.sh'
+alias initlint='$DOTFILES_DIR/_bin/helpers/init_linter.sh'

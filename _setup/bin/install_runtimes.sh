@@ -6,12 +6,13 @@ warn() { log "⚠️  $*"; }
 err() { log "❌ $*"; }
 
 ensure_asdf() {
+  # asdf >= 0.16 es un binario (sin asdf.sh que "sourcear"). Basta con tenerlo en PATH.
   if ! command -v asdf > /dev/null 2>&1; then
-    local asdf_sh="/opt/homebrew/opt/asdf/libexec/asdf.sh"
-    [[ -f $asdf_sh ]] && . "$asdf_sh"
+    export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
+    export PATH="$HOME/.asdf/bin:$ASDF_DATA_DIR/shims:$PATH"
   fi
   command -v asdf > /dev/null 2>&1 || {
-    err "asdf no disponible"
+    err "asdf no disponible (instálalo antes con bootstrap_prereqs)"
     exit 1
   }
 }
@@ -99,11 +100,13 @@ main() {
     install_and_set_user nodejs "$ver"
   fi
 
-  log "==> Java (Temurin 21)"
-  if plugin_add_or_update java https://github.com/halcyon/asdf-java.git; then
-    ver="$(resolve_latest java 'temurin-21')"
-    install_and_set_user java "$ver"
-  fi
+  # Java y .NET desactivados por defecto en el homelab (innecesarios; añaden peso).
+  # Descoméntalos si vas a desarrollar JVM/.NET en el servidor.
+  # log "==> Java (Temurin 21)"
+  # if plugin_add_or_update java https://github.com/halcyon/asdf-java.git; then
+  #   ver="$(resolve_latest java 'temurin-21')"
+  #   install_and_set_user java "$ver"
+  # fi
 
   log "==> Python"
   if plugin_add_or_update python https://github.com/danhper/asdf-python.git; then
@@ -117,11 +120,11 @@ main() {
     install_and_set_user golang "$ver"
   fi
 
-  log "==> .NET SDK"
-  if plugin_add_or_update dotnet-core https://github.com/emersonsoares/asdf-dotnet-core.git; then
-    ver="$(resolve_latest dotnet-core)"
-    install_and_set_user dotnet-core "$ver"
-  fi
+  # log "==> .NET SDK"
+  # if plugin_add_or_update dotnet-core https://github.com/emersonsoares/asdf-dotnet-core.git; then
+  #   ver="$(resolve_latest dotnet-core)"
+  #   install_and_set_user dotnet-core "$ver"
+  # fi
 
   log "==> pnpm via Corepack"
   if command -v corepack > /dev/null 2>&1; then

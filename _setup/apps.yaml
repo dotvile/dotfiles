@@ -1,27 +1,15 @@
+# Paquetes CLI del sistema (apt/pacman). Linux-first para el perfil ubuntu-server.
+#
+# Fuera de este archivo, gestionados por el instalador:
+#   - zsh, toolchain de build, yq, asdf  -> _setup/lib/bootstrap.sh (bootstrap_prereqs)
+#   - starship, neovim (>=0.10)          -> _setup/lib/bootstrap.sh (install_extras)
+#   - node, python, go, ...              -> _setup/bin/install_runtimes.sh (asdf)
+#   - docker (Docker CE)                 -> fase de servicios del homelab (no aquí)
 apps:
-  # CLI
-  - fastfetch
+  # CLI esencial
   - fzf
   - ripgrep
-  - starship
-  - { brew: uv }
-
-  # Runtime manager
-  - { brew: asdf }
-
-  # Editor/terminal
-  - { brew: neovim, apt: neovim, pacman: neovim }
-  - { brew: wezterm }
-
-  # Desktop / WM (macOS)
-  - { brew: raycast }
-  - { brew: nikitabobko/tap/aerospace }
-
-  # Docker (simple)
-  - { brew: docker, apt: docker.io, pacman: docker }
-
-  # Fonts (macOS via cask-fonts)
-  - { brew: font-recursive-mono-nerd-font }
-  - { brew: font-jetbrains-mono-nerd-font }
-  - { brew: font-fira-code-nerd-font }
-  - { brew: font-symbols-only-nerd-font }
+  - fastfetch
+  - jq
+  - tree
+  - htop

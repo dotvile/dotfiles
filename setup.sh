@@ -18,6 +18,9 @@ main() {
 
   install_from_yaml "$@"
 
+  # Herramientas fuera de los repos (starship, neovim >= 0.10)
+  install_extras
+
   link_zshrc
   link_config_folders
 

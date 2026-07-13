@@ -1,33 +1,19 @@
 # --- editor
 export EDITOR='nvim'
 
+# --- PATH base (Linux)
 export PATH="$HOME/.bin:$PATH"
-export PATH="$HOME/Development/dotfiles/_bin:$PATH"
-# rust
-export PATH="$HOME/.cargo/bin:$PATH"
-# opencode
-export PATH="$HOME/.zshrc:$PATH"
-#local
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$DOTFILES_DIR/_bin:$PATH"   # helpers del repo (initfmt, initlint)
+export PATH="$HOME/.cargo/bin:$PATH"     # rust / cargo
+export PATH="$HOME/.local/bin:$PATH"     # binarios de usuario (pipx, etc.)
 
-# --- Homebrew 
-if [[ -x /opt/homebrew/bin/brew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+# Overrides locales no versionados (secretos, URLs de BBDD...).
+# Copia `_zsh/local.zsh.example` a `_zsh/local.zsh` y rellena los valores.
+if [[ -f "$DOTFILES_DIR/_zsh/local.zsh" ]]; then
+  source "$DOTFILES_DIR/_zsh/local.zsh"
 fi
 
-# asdf 
-if [[ -f /opt/homebrew/opt/asdf/libexec/asdf.sh ]]; then
-  . /opt/homebrew/opt/asdf/libexec/asdf.sh
-fi
-
-# Local, non-versioned environment overrides.
-# Copy `_zsh/local.zsh.example` to `_zsh/local.zsh` and fill in your values.
-if [[ -f "$HOME/Development/dotfiles/_zsh/local.zsh" ]]; then
-  source "$HOME/Development/dotfiles/_zsh/local.zsh"
-fi
-
-
-# De-dup and helper PATH
+# De-dup y helper de PATH
 typeset -U path
 path_prepend() {
   local i; for (( i=$#; i>=1; i-- )); do
@@ -35,19 +21,17 @@ path_prepend() {
   done
 }
 
-# Force shims/bin from asdf first
-ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
-path_prepend "$ASDF_DIR/shims" "$ASDF_DIR/bin"
+# asdf: gestor de runtimes (Node, Python, Go...). Shims/bin primero en el PATH.
+export ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
+export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
+path_prepend "$ASDF_DATA_DIR/shims" "$ASDF_DIR/bin"
 
-# JAVA_HOME from asdf
+# Herramientas Go instaladas con `go install ...@latest`
+export GOPATH="${GOPATH:-$HOME/go}"
+path_prepend "$GOPATH/bin"
+
+# JAVA_HOME desde asdf (solo si java está instalado)
 if command -v asdf >/dev/null 2>&1; then
   asdf_java_dir="$(asdf where java 2>/dev/null || true)"
   [[ -n "$asdf_java_dir" ]] && export JAVA_HOME="$asdf_java_dir"
 fi
-
-# PNPM (NO Corepack)
-# export PNPM_HOME="$HOME/Library/pnpm"; path_prepend "$PNPM_HOME"
-# Go tools (go install ...@latest)
-# export GOPATH="${GOPATH:-$HOME/go}"
-# .NET by cask
-#[[ -x /usr/local/share/dotnet/dotnet ]] && path_prepend "/usr/local/share/dotnet" "/usr/local/bin"
