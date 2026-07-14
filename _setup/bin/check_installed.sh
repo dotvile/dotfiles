@@ -91,10 +91,10 @@ check_bin() {
 
 check_bin node "node -v"
 check_bin pnpm "pnpm -v"
-check_bin java "java -version" 'out="$(printf %s "$out" | grep -Eo "[0-9]+(\.[0-9]+){1,3}(_[0-9]+)?" | head -n1)"'
 check_bin python "python --version"
 check_bin go "go version"
-check_bin dotnet 'bash -lc '\''echo "SDK $(dotnet --version) | Runtime $(dotnet --list-runtimes | head -n1 | awk "{print \$2}")"'\'
+check_bin rustc "rustc --version"
+check_bin cargo "cargo --version"
 
 if command -v asdf > /dev/null 2>&1; then
   echo

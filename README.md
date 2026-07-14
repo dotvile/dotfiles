@@ -38,9 +38,8 @@ Cierra y reabre la sesión SSH: `~/.zshrc` (enlazado a `_zsh/init.zsh`) cargará
 3. **Extras** fuera de repos: **starship** (script oficial) y **neovim ≥0.10** (release oficial).
 4. **Symlinks**: `~/.zshrc → _zsh/init.zsh`, y cada carpeta de config (`nvim`, `starship`) a
    `~/.config/`.
-5. **Runtimes con asdf** (`_setup/bin/install_runtimes.sh`): Node, Python, Go, Java (Temurin 21) y
-   .NET SDK — misma paridad que el entorno macOS (necesario para el tooling C#/.NET de Neovim:
-   csharpier, roslyn, netcoredbg).
+5. **Runtimes** (`_setup/bin/install_runtimes.sh`): Node, Python y Go vía asdf, y **Rust vía rustup**
+   (con `rust-analyzer`, `clippy`, `rustfmt`). Sin Java ni .NET/C# (perfil raspi4, ver más abajo).
 
 ## Notas
 
@@ -49,3 +48,14 @@ Cierra y reabre la sesión SSH: `~/.zshrc` (enlazado a `_zsh/init.zsh`) cargará
 - Overrides locales no versionados (secretos, URLs de BBDD): copia `_zsh/local.zsh.example` a
   `_zsh/local.zsh`.
 - La clave SSH que carga el agente al iniciar zsh es `~/.ssh/github` (ver `_zsh/functions/init_ssh.zsh`).
+
+## Perfil `raspi4`
+
+Rama derivada de `profiles/ubuntu-server-v2`, ajustada para la Raspberry Pi (Debian 13 *trixie* / arm64):
+
+- **Fix Debian trixie**: `libncursesw5-dev` → `libncurses-dev` en `bootstrap.sh` (el paquete se renombró).
+- **Runtimes reducidos a Python, Node, Go y Rust.** Fuera Java (Temurin) y .NET/C#.
+- **Rust vía `rustup`** (nativo arm64) con `rust-analyzer`, `clippy` y `rustfmt`.
+- **Neovim limpio de Java/.NET/C#**: eliminados `jdtls`, `roslyn.nvim`, `neotest-dotnet`, `netcoredbg`,
+  `csharpier` y el parser `c_sharp`; se conserva el tooling de Python/Node/Go/Rust y el de SQL (`sqls`).
+- Todo lo demás (yq, asdf, neovim, starship) ya era arch-aware y descarga binarios arm64.

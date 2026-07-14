@@ -5,7 +5,6 @@ return {
       local parsers = {
         "rust",
         "lua",
-        "c_sharp",
         "sql",
         "luadoc",
         "javascript",

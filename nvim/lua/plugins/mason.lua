@@ -10,7 +10,6 @@ return {
     opts = {
       registries = {
         "github:mason-org/mason-registry",
-        "github:Crashdummyy/mason-registry",
       },
       ui = {
         icons = {
@@ -51,8 +50,6 @@ return {
         "black",
         "shfmt",
         "goimports",
-        "csharpier",
-        "roslyn",
         "sqls",
 
         -- Linters
@@ -65,7 +62,6 @@ return {
         "debugpy",
         "delve",
         "js-debug-adapter",
-        "netcoredbg",
       },
       auto_update = false,
       run_on_start = true,

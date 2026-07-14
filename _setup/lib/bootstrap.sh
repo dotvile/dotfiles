@@ -86,7 +86,7 @@ bootstrap_prereqs() {
       sudo apt install -y \
         zsh build-essential curl git unzip ca-certificates gnupg tar xz-utils \
         libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
-        libffi-dev liblzma-dev libncursesw5-dev tk-dev
+        libffi-dev liblzma-dev libncurses-dev tk-dev
       install_yq
       install_asdf
       ;;

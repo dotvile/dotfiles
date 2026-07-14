@@ -1,5 +1,3 @@
-local dotnet = require("functions.dotnet")
-
 local function setup_adapters(dap)
   local mason_path = vim.fn.stdpath("data") .. "/mason"
 
@@ -34,15 +32,6 @@ local function setup_adapters(dap)
       args = { js_debug_path .. "/js-debug/src/dapDebugServer.js", "${port}" },
     },
   }
-
-  -- C#/.NET
-  local mason_dbg = mason_path .. "/bin/netcoredbg"
-  dap.adapters.coreclr = {
-    type = "executable",
-    command = vim.fn.executable(mason_dbg) == 1 and mason_dbg or "netcoredbg",
-    args = { "--interpreter=vscode" },
-  }
-  dap.adapters.netcoredbg = dap.adapters.coreclr
 end
 
 local function setup_configurations(dap)
@@ -100,48 +89,6 @@ local function setup_configurations(dap)
     },
   }
   dap.configurations.typescript = dap.configurations.javascript
-
-  -- C#/.NET
-  dap.configurations.cs = {
-    {
-      type = "coreclr",
-      name = "Launch .NET",
-      request = "launch",
-      program = function()
-        local dll, err = dotnet.build_and_find_dll()
-        if not dll then
-          vim.notify(err or "Unable to locate debug DLL", vim.log.levels.ERROR)
-          return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
-        end
-
-        return dll
-      end,
-    },
-    {
-      type = "coreclr",
-      name = "Attach to process",
-      request = "attach",
-      processId = function()
-        local procs = vim.fn.systemlist("ps -ax | grep dotnet | grep -v grep")
-        local choices = {}
-        for _, p in ipairs(procs) do
-          local pid = p:match("^%s*(%d+)")
-          if pid then
-            table.insert(choices, pid .. "  " .. p)
-          end
-        end
-        if #choices == 0 then
-          vim.notify("No dotnet processes found", vim.log.levels.WARN)
-          return nil
-        end
-        local choice = vim.fn.inputlist(vim.list_extend({ "Select process:" }, choices))
-        if choice < 1 or choice > #choices then
-          return nil
-        end
-        return choices[choice]:match("^(%d+)")
-      end,
-    },
-  }
 end
 
 local function setup_ui(dap)
@@ -204,7 +151,7 @@ return {
     "jay-babu/mason-nvim-dap.nvim",
     dependencies = { "williamboman/mason.nvim", "mfussenegger/nvim-dap" },
     opts = {
-      ensure_installed = { "netcoredbg", "js-debug-adapter", "debugpy", "delve" },
+      ensure_installed = { "js-debug-adapter", "debugpy", "delve" },
     },
   },
 }

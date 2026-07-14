@@ -17,21 +17,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
     map("n", "gr", vim.lsp.buf.references, opts)
     map("n", "<leader>e", vim.diagnostic.open_float, opts)
     map("n", "<leader>q", vim.diagnostic.setloclist, opts)
-
-    if client and client.name == "roslyn" then
-      pcall(vim.lsp.inlay_hint.enable, true, { bufnr = bufnr })
-
-      local group = vim.api.nvim_create_augroup("roslyn-codelens-" .. bufnr, { clear = true })
-      vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
-        group = group,
-        buffer = bufnr,
-        callback = function()
-          pcall(vim.lsp.codelens.refresh)
-        end,
-      })
-
-      pcall(vim.lsp.codelens.refresh)
-    end
   end,
 })
 
@@ -109,48 +94,6 @@ vim.lsp.config("sqls", {
   root_markers = { ".git", "sqls.yml", "sqls.yaml" },
 })
 
-vim.lsp.config("roslyn", {
-  capabilities = (function()
-    local ok, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-    if ok then
-      return cmp_lsp.default_capabilities()
-    end
-    return vim.lsp.protocol.make_client_capabilities()
-  end)(),
-  settings = {
-    ["csharp|background_analysis"] = {
-      dotnet_analyzer_diagnostics_scope = "fullSolution",
-      dotnet_compiler_diagnostics_scope = "fullSolution",
-    },
-    ["csharp|code_lens"] = {
-      dotnet_enable_references_code_lens = true,
-      dotnet_enable_tests_code_lens = true,
-    },
-    ["csharp|completion"] = {
-      dotnet_show_completion_items_from_unimported_namespaces = true,
-      dotnet_show_name_completion_suggestions = true,
-      dotnet_provide_regex_completions = true,
-    },
-    ["csharp|formatting"] = {
-      dotnet_organize_imports_on_format = true,
-    },
-    ["csharp|inlay_hints"] = {
-      csharp_enable_inlay_hints_for_implicit_object_creation = true,
-      csharp_enable_inlay_hints_for_implicit_variable_types = true,
-      csharp_enable_inlay_hints_for_lambda_parameter_types = true,
-      csharp_enable_inlay_hints_for_types = true,
-      dotnet_enable_inlay_hints_for_indexer_parameters = true,
-      dotnet_enable_inlay_hints_for_literal_parameters = true,
-      dotnet_enable_inlay_hints_for_object_creation_parameters = true,
-      dotnet_enable_inlay_hints_for_other_parameters = true,
-      dotnet_enable_inlay_hints_for_parameters = true,
-    },
-    ["csharp|symbol_search"] = {
-      dotnet_search_reference_assemblies = true,
-    },
-  },
-})
-
 -- Enable all configured LSP servers
 vim.lsp.enable({
   "lua_ls",
@@ -160,7 +103,6 @@ vim.lsp.enable({
   "gopls",
   "yamlls",
   "astro",
-  "roslyn",
   "sqls",
 })
 

@@ -50,7 +50,7 @@ remove_plugin() {
 
 main() {
   ensure_asdf
-  local tools=(nodejs java python golang dotnet-core)
+  local tools=(nodejs python golang)
 
   echo "=== Desinstalación runtimes (asdf) ==="
   for t in "${tools[@]}"; do

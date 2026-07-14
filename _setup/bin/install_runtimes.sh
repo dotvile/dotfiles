@@ -18,7 +18,7 @@ ensure_asdf() {
 }
 
 cleanup_bogus_installs() {
-  for t in nodejs java python golang dotnet-core; do
+  for t in nodejs python golang; do
     local d="$HOME/.asdf/installs/$t"
     [[ -d $d ]] || continue
     find "$d" -maxdepth 1 -type d -name 'No compatible versions*' -exec rm -rf {} + 2> /dev/null || true
@@ -46,12 +46,8 @@ resolve_latest() {
   v="$(asdf latest "$tool" "$sel" 2> /dev/null || true)"
   if [[ -z $v || $v == No\ compatible* ]]; then
     case "$tool" in
-      java)
-        # ejemplo: temurin-21
-        v="$(asdf list all java "$sel" 2> /dev/null | tail -n1 | tr -d '[:space:]' || true)"
-        ;;
-      python | nodejs | golang | dotnet-core)
-        # filtra solo números x.y[.z] (+sufijo opcional para Java-like)
+      python | nodejs | golang)
+        # filtra solo números x.y[.z]
         v="$(asdf list all "$tool" 2> /dev/null \
           | grep -E '^[0-9]+(\.[0-9]+){1,2}([+].*)?$' \
           | tail -n1 | tr -d '[:space:]' || true)"
@@ -82,6 +78,26 @@ install_and_set_user() {
   asdf reshim "$tool" "$ver" || true
 }
 
+install_rust() {
+  # Rust vía rustup (nativo arm64/amd64, sin asdf). PATH real: ~/.cargo/bin
+  log "==> Rust (rustup)"
+  if command -v rustup > /dev/null 2>&1; then
+    rustup update stable || warn "rustup update falló; continúo"
+  elif command -v cargo > /dev/null 2>&1; then
+    log "cargo ya presente (rust instalado sin rustup); no toco nada."
+  else
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+      | sh -s -- -y --default-toolchain stable --profile default \
+      || { warn "instalación de rustup falló; continúo"; return 0; }
+  fi
+  # Disponible en esta sesión del instalador
+  [[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env" || true
+  # Componentes que usa Neovim (rust_analyzer LSP, clippy, rustfmt)
+  if command -v rustup > /dev/null 2>&1; then
+    rustup component add rust-analyzer clippy rustfmt 2> /dev/null || true
+  fi
+}
+
 main() {
   ensure_asdf
   cleanup_bogus_installs
@@ -100,12 +116,6 @@ main() {
     install_and_set_user nodejs "$ver"
   fi
 
-  log "==> Java (Temurin 21)"
-  if plugin_add_or_update java https://github.com/halcyon/asdf-java.git; then
-    ver="$(resolve_latest java 'temurin-21')"
-    install_and_set_user java "$ver"
-  fi
-
   log "==> Python"
   if plugin_add_or_update python https://github.com/danhper/asdf-python.git; then
     ver="$(resolve_latest python)"
@@ -118,11 +128,7 @@ main() {
     install_and_set_user golang "$ver"
   fi
 
-  log "==> .NET SDK"
-  if plugin_add_or_update dotnet-core https://github.com/emersonsoares/asdf-dotnet-core.git; then
-    ver="$(resolve_latest dotnet-core)"
-    install_and_set_user dotnet-core "$ver"
-  fi
+  install_rust
 
   log "==> pnpm via Corepack"
   if command -v corepack > /dev/null 2>&1; then
@@ -136,13 +142,13 @@ main() {
   log "✅ Runtimes instalados."
   asdf current || true
   log ""
-  log "which -a node pnpm java python go dotnet:"
+  log "which -a node pnpm python go cargo rustc:"
   which -a node || true
   which -a pnpm || true
-  which -a java || true
   which -a python || true
   which -a go || true
-  which -a dotnet || true
+  which -a cargo || true
+  which -a rustc || true
 }
 
 main "$@"
