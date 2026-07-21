@@ -82,6 +82,28 @@ install_and_set_user() {
   asdf reshim "$tool" "$ver" || true
 }
 
+install_pnpm_binary() {
+  # pnpm como binario standalone: las versiones recientes de Node ya NO traen
+  # corepack, así que lo bajamos directo de las releases de pnpm. Idempotente.
+  local arch asset home bin
+  case "$(uname -m)" in
+    x86_64) arch="x64" ;;
+    aarch64 | arm64) arch="arm64" ;;
+    *) warn "arch $(uname -m) no soportada para pnpm; lo salto"; return 0 ;;
+  esac
+  asset="pnpm-linux-${arch}"
+  home="${PNPM_HOME:-$HOME/.local/share/pnpm}"
+  bin="$home/pnpm"
+  mkdir -p "$home"
+  if curl -fsSL "https://github.com/pnpm/pnpm/releases/latest/download/${asset}" -o "$bin.tmp"; then
+    chmod +x "$bin.tmp" && mv -f "$bin.tmp" "$bin"
+    log "✅ pnpm $("$bin" --version 2>/dev/null || echo '(instalado)') en $bin"
+  else
+    warn "no pude descargar pnpm ($asset); lo salto"
+    rm -f "$bin.tmp"
+  fi
+}
+
 main() {
   ensure_asdf
   cleanup_bogus_installs
@@ -124,12 +146,9 @@ main() {
     install_and_set_user dotnet-core "$ver"
   fi
 
-  log "==> pnpm via Corepack"
-  if command -v corepack > /dev/null 2>&1; then
-    corepack enable || true
-    corepack prepare pnpm@latest --activate || true
-    asdf reshim nodejs || true
-  fi
+  log "==> pnpm (binario standalone)"
+  install_pnpm_binary
+  export PATH="${PNPM_HOME:-$HOME/.local/share/pnpm}:$PATH"
 
   asdf reshim || true
   log ""

@@ -26,9 +26,13 @@ export ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
 export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
 path_prepend "$ASDF_DATA_DIR/shims" "$ASDF_DIR/bin"
 
-# Herramientas Go instaladas con `go install ...@latest`
-export GOPATH="${GOPATH:-$HOME/go}"
+# Herramientas Go instaladas con `go install ...@latest` (GOPATH en ruta XDG, no en ~/go)
+export GOPATH="${GOPATH:-$HOME/.local/share/go}"
 path_prepend "$GOPATH/bin"
+
+# pnpm (binario standalone; aquí viven el ejecutable y los `pnpm add -g`)
+export PNPM_HOME="${PNPM_HOME:-$HOME/.local/share/pnpm}"
+path_prepend "$PNPM_HOME"
 
 # JAVA_HOME desde asdf (solo si java está instalado)
 if command -v asdf >/dev/null 2>&1; then
