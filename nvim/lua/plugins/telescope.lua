@@ -189,27 +189,6 @@ return {
       desc = "Git status",
     },
     {
-      "gr",
-      function()
-        require("telescope.builtin").lsp_references()
-      end,
-      desc = "LSP references",
-    },
-    {
-      "gd",
-      function()
-        require("telescope.builtin").lsp_definitions()
-      end,
-      desc = "LSP definitions",
-    },
-    {
-      "gi",
-      function()
-        require("telescope.builtin").lsp_implementations()
-      end,
-      desc = "LSP implementations",
-    },
-    {
       "<leader>ts",
       function()
         require("telescope.builtin").treesitter()

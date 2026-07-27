@@ -4,17 +4,22 @@ vim.api.nvim_create_autocmd("LspAttach", {
     local bufnr = args.buf
     local opts = { buffer = bufnr, silent = true }
     local map = vim.keymap.set
+    local tb = require("telescope.builtin")
     local client = vim.lsp.get_client_by_id(args.data.client_id)
 
     map("n", "gD", vim.lsp.buf.declaration, opts)
-    map("n", "gd", vim.lsp.buf.definition, opts)
+    map("n", "gd", tb.lsp_definitions, opts)
     map("n", "K", vim.lsp.buf.hover, opts)
-    map("n", "gi", vim.lsp.buf.implementation, opts)
+    map("n", "gi", tb.lsp_implementations, opts)
     map("n", "<C-k>", vim.lsp.buf.signature_help, opts)
-    map("n", "<leader>D", vim.lsp.buf.type_definition, opts)
+    map("n", "<leader>D", tb.lsp_type_definitions, opts)
     map("n", "<leader>rn", vim.lsp.buf.rename, opts)
     map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
-    map("n", "gr", vim.lsp.buf.references, opts)
+    map("n", "gr", tb.lsp_references, opts)
+    map("n", "gO", tb.lsp_document_symbols, opts)
+    map("n", "<leader>tw", tb.lsp_dynamic_workspace_symbols, opts)
+    map("n", "<leader>ci", tb.lsp_incoming_calls, opts)
+    map("n", "<leader>co", tb.lsp_outgoing_calls, opts)
     map("n", "<leader>e", vim.diagnostic.open_float, opts)
     map("n", "<leader>q", vim.diagnostic.setloclist, opts)
 
@@ -103,12 +108,6 @@ vim.lsp.config("astro", {
   root_markers = { "package.json", "tsconfig.json", ".git" },
 })
 
-vim.lsp.config("sqls", {
-  cmd = { "sqls", "-config", vim.fn.stdpath("config") .. "/sqls/config.yml" },
-  filetypes = { "sql" },
-  root_markers = { ".git", "sqls.yml", "sqls.yaml" },
-})
-
 vim.lsp.config("roslyn", {
   capabilities = (function()
     local ok, cmp_lsp = pcall(require, "cmp_nvim_lsp")
@@ -161,7 +160,6 @@ vim.lsp.enable({
   "yamlls",
   "astro",
   "roslyn",
-  "sqls",
 })
 
 -- Plugin spec for dependencies only

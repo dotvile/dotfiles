@@ -1,5 +1,6 @@
 # Copy this file to `_zsh/local.zsh` and replace the placeholder values.
 # Keep the real file out of git.
 
-export POSTGRES_URL='postgresql://USER:PASSWORD@HOST:5432/DBNAME'
-export SQLSERVER_URL='jdbc:sqlserver://HOST:1433;databaseName=DBNAME;user=USER;password=PASSWORD;encrypt=true;trustServerCertificate=false'
+export POSTGRES_URL='postgresql://USER:PASSWORD@REAL_HOST_OR_IP:5432/DBNAME'
+# If the server uses a self-signed or otherwise untrusted cert, set trustServerCertificate=true for dev/test.
+export SQLSERVER_URL='sqlserver://REAL_HOST_OR_IP:1433;user=USER;password=PASSWORD;database=DBNAME;encrypt=true;trustServerCertificate=true'

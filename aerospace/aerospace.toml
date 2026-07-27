@@ -84,23 +84,18 @@ ctrl-esc = 'mode service'
 
 [workspace-to-monitor-force-assignment]
 
-1 = ['built-in','secondary', 'main']
+# Monitor principal — LG UltraGear (DP → dock Caldigit): espacios 1-5 (F1-F5)
+1 = ['LG ULTRAGEAR', 'built-in']
+2 = ['LG ULTRAGEAR', 'built-in']
+4 = ['LG ULTRAGEAR', 'built-in']
+5 = ['LG ULTRAGEAR', 'built-in']
+7 = ['LG ULTRAGEAR', 'built-in']
 
-2 = ['built-in','secondary', 'main']
-
-3 = ['built-in','secondary', 'main']
-
-6 = ['built-in','secondary', 'main']
-
-4 = 'main'
-
-5 = 'main'
-
-7 = 'main'
-
-8 = 'main'
-
-9 = 'main'
+# Monitor auxiliar — LG DualUp / SDQHD (USB-C → dock Caldigit): espacios 6-9 (F6-F9)
+3 = ['LG SDQHD', 'built-in']
+6 = ['LG SDQHD', 'built-in']
+8 = ['LG SDQHD', 'built-in']
+9 = ['LG SDQHD', 'built-in']
 
 [mode.service.binding]
 esc = ['reload-config', 'mode main']

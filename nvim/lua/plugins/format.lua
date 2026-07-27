@@ -15,7 +15,9 @@ return {
       svelte = { "prettier" },
       astro = { "prettier" },
       css = { "prettier" },
-      cs = { "csharpier" },
+      -- cs: format_on_save disabled (Roslyn converts LF→CRLF via .editorconfig,
+      -- causing spurious git diffs). Use <leader>mp to format explicitly.
+      cs = {},
       html = { "prettier" },
       markdown = { "prettier" },
       json = { "prettier" },

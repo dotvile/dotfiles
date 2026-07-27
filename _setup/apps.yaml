@@ -4,6 +4,7 @@ apps:
   - fzf
   - ripgrep
   - starship
+  - usql
   - { brew: uv }
 
   # Runtime manager
