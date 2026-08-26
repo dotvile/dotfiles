@@ -25,6 +25,13 @@ alias dock='open /Applications/Docker.app/'
 alias disc='open /Applications/Discord.app/'
 alias oa='open -a'
 
+# tmux
+#   tls  -> sesiones vivas de un vistazo. ● conectada / ○ detached.
+#   El formato es una condicional de tmux: #{?CONDICION,SI,NO}
+alias tls='tmux list-sessions -F "#{?session_attached,●,○} #{session_name}  (#{session_windows} win, #{t:session_created})" 2>/dev/null || echo "sin sesiones"'
+alias ta='tmux attach -t'
+alias tn='tmux new -A -s'
+
 # Misc
 alias c='clear'
 alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
