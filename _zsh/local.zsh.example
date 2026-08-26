@@ -3,3 +3,8 @@
 
 export POSTGRES_URL='postgresql://USER:PASSWORD@HOST:5432/DBNAME'
 export SQLSERVER_URL='jdbc:sqlserver://HOST:1433;databaseName=DBNAME;user=USER;password=PASSWORD;encrypt=true;trustServerCertificate=false'
+
+# Ruta del vault de Obsidian en esta máquina.
+# Si no se define, nvim busca en rutas conocidas; si no encuentra ninguna,
+# obsidian.nvim queda desactivado (no rompe la apertura de ficheros .md).
+export OBSIDIAN_VAULT="$HOME/Obsidian/Vile"

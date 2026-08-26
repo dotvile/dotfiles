@@ -1,53 +1,61 @@
+local vault = require("config.vault")
+
 return {
   "epwalsh/obsidian.nvim",
   version = "*",
   lazy = true,
   ft = "markdown",
+  -- Sin vault en esta máquina el plugin ni se carga: su setup() aborta al no
+  -- poder resolver el workspace, y eso rompía la apertura de cualquier .md.
+  cond = function()
+    return vault.root() ~= nil
+  end,
   dependencies = {
     "nvim-lua/plenary.nvim",
   },
-  opts = {
-    workspaces = {
-      {
-        name = "vileonbuild",
-        path = "/Users/victor/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vile",
+  opts = function()
+    return {
+      workspaces = {
+        {
+          name = "vileonbuild",
+          path = vault.root(),
+        },
       },
-    },
-    notes_subdir = "inbox",
-    new_notes_location = "notes_subdir",
-    disable_frontmatter = false,
-    daily_notes = {
-      folder = "daily",
-      date_format = "%Y-%m-%d",
-      alias_format = "%B %-d, %Y",
-      template = "daily",
-    },
-    templates = {
-      folder = "templates",
-      date_format = "%Y-%m-%d",
-      time_format = "%H:%M",
-    },
-    mappings = {
-      ["gf"] = {
-        action = function()
-          return require("obsidian").util.gf_passthrough()
-        end,
-        opts = { noremap = false, expr = true, buffer = true },
+      notes_subdir = "inbox",
+      new_notes_location = "notes_subdir",
+      disable_frontmatter = false,
+      daily_notes = {
+        folder = "daily",
+        date_format = "%Y-%m-%d",
+        alias_format = "%B %-d, %Y",
+        template = "daily",
       },
-    },
-    completion = {
-      nvim_cmp = true,
-      min_chars = 2,
-    },
-    ui = {
-      checkboxes = {},
-      bullets = {},
-    },
-  },
+      templates = {
+        folder = "templates",
+        date_format = "%Y-%m-%d",
+        time_format = "%H:%M",
+      },
+      mappings = {
+        ["gf"] = {
+          action = function()
+            return require("obsidian").util.gf_passthrough()
+          end,
+          opts = { noremap = false, expr = true, buffer = true },
+        },
+      },
+      completion = {
+        nvim_cmp = true,
+        min_chars = 2,
+      },
+      ui = {
+        checkboxes = {},
+        bullets = {},
+      },
+    }
+  end,
   config = function(_, opts)
     require("obsidian").setup(opts)
 
-    local vault_root = "/Users/victor/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vile"
     local group = vim.api.nvim_create_augroup("obsidian_second_brain", { clear = true })
 
     local function update_updated_field(bufnr)
@@ -72,8 +80,7 @@ return {
       group = group,
       pattern = "*.md",
       callback = function(args)
-        local path = vim.api.nvim_buf_get_name(args.buf)
-        if path:sub(1, #vault_root) ~= vault_root then
+        if not vault.contains(vim.api.nvim_buf_get_name(args.buf)) then
           return
         end
 
