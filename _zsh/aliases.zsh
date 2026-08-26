@@ -23,12 +23,21 @@ alias api='sudo apt install -y'
 alias apr='sudo apt remove'
 alias aps='apt search'
 
-# Docker (homelab)
-alias dps='docker ps'
-alias dpsa='docker ps -a'
-alias dcu='docker compose up -d'
-alias dcd='docker compose down'
-alias dcl='docker compose logs -f'
+# Contenedores (homelab). El motor depende de la maquina: docker en macOS,
+# podman en el perfil de servidor. La CLI de podman es compatible, asi que
+# basta con apuntar los aliases al primero que exista; si no hay ninguno no
+# se definen, en vez de fallar con "command not found" al invocarlos.
+for _engine in docker podman; do
+  if command -v "$_engine" > /dev/null 2>&1; then
+    alias dps="$_engine ps"
+    alias dpsa="$_engine ps -a"
+    alias dcu="$_engine compose up -d"
+    alias dcd="$_engine compose down"
+    alias dcl="$_engine compose logs -f"
+    break
+  fi
+done
+unset _engine
 
 # Misc
 alias fast='clear && fastfetch'
