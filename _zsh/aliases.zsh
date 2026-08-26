@@ -39,6 +39,13 @@ for _engine in docker podman; do
 done
 unset _engine
 
+# tmux
+#   tls  -> sesiones vivas de un vistazo. ● conectada / ○ detached.
+#   El formato es una condicional de tmux: #{?CONDICION,SI,NO}
+alias tls='tmux list-sessions -F "#{?session_attached,●,○} #{session_name}  (#{session_windows} win, #{t:session_created})" 2>/dev/null || echo "sin sesiones"'
+alias ta='tmux attach -t'
+alias tn='tmux new -A -s'
+
 # Misc
 alias fast='clear && fastfetch'
 
