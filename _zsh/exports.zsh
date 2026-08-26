@@ -30,9 +30,12 @@ path_prepend "$ASDF_DATA_DIR/shims" "$ASDF_DIR/bin"
 export GOPATH="${GOPATH:-$HOME/.local/share/go}"
 path_prepend "$GOPATH/bin"
 
-# pnpm (binario standalone; aquí viven el ejecutable y los `pnpm add -g`)
+# pnpm. Dos layouts posibles según cómo se instalara:
+#   - binario standalone (install_runtimes.sh) -> ejecutable en $PNPM_HOME
+#   - script oficial de pnpm.io                -> ejecutables en $PNPM_HOME/bin
+# path_prepend ignora las rutas que no existen, así que cubrimos ambos.
 export PNPM_HOME="${PNPM_HOME:-$HOME/.local/share/pnpm}"
-path_prepend "$PNPM_HOME"
+path_prepend "$PNPM_HOME" "$PNPM_HOME/bin"
 
 # JAVA_HOME desde asdf (solo si java está instalado)
 if command -v asdf >/dev/null 2>&1; then
