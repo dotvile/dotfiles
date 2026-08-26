@@ -13,3 +13,5 @@ apps:
   - jq
   - tree
   - htop
+  - { apt: tmux, pacman: tmux }
+  - { apt: ncurses-term, pacman: ncurses }
