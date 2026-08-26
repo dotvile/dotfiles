@@ -1,46 +1,35 @@
+-- wezterm.lua — SOLO ASPECTO
+--
+-- Este archivo es deliberadamente mínimo y desechable: es la única parte de la
+-- configuración que NO es portable (un emulador no existe en un servidor).
+-- Todo el comportamiento —splits, navegación, sesiones, copiado— vive en
+-- ~/.config/tmux/tmux.conf, que sí viaja a todas las máquinas.
+--
+-- Portar esto a Ghostty/Kitty/Alacritty son 5 minutos: son 6 ajustes.
+
 local wezterm = require("wezterm")
-
 local config = wezterm.config_builder()
-local action = wezterm.action
 
-local mods = "CTRL | ALT"
+-- Tipografía
+config.font = wezterm.font("RecMonoLinear Nerd Font Mono")
+config.font_size = 24.0
+config.line_height = 1.25
 
-config = {
-
-	window_background_opacity = 1,
-	enable_tab_bar = false,
-	inactive_pane_hsb = {
-		saturation = 0.75,
-		brightness = 0.45,
-	},
-	automatically_reload_config = true,
-	window_close_confirmation = "NeverPrompt",
-	window_decorations = "RESIZE",
-	background = {
-		{
-			source = {
-				Color = "#02051F",
-			},
-			width = "100%",
-			height = "100%",
-			opacity = 0.75,
-		},
-	},
-	color_scheme = "Tokio Night",
-	font = wezterm.font("RecMonoLinear Nerd Font Mono"),
-	font_size = 24.0,
-	line_height = 1.25,
-
-	-- leader = { key = "a", mods = "CTRL", timeout_milliseconds = 1000 },
-	keys = {
-		-- Pane config
-		{ key = "v", mods = mods, action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-		{ key = "z", mods = mods, action = action.SplitVertical({ domain = "CurrentPaneDomain" }) },
-		{ key = "h", mods = mods, action = action.ActivatePaneDirection("Left") },
-		{ key = "t", mods = mods, action = action.ActivatePaneDirection("Down") },
-		{ key = "n", mods = mods, action = action.ActivatePaneDirection("Up") },
-		{ key = "s", mods = mods, action = action.ActivatePaneDirection("Right") },
-		{ key = "w", mods = mods, action = action.CloseCurrentPane({ confirm = true }) },
+-- Color y fondo
+config.color_scheme = "Tokio Night"
+config.window_background_opacity = 1
+config.background = {
+	{
+		source = { Color = "#02051F" },
+		width = "100%",
+		height = "100%",
+		opacity = 0.75,
 	},
 }
+
+-- Cromo de la ventana (lo mínimo para que no estorbe)
+config.enable_tab_bar = false -- la barra de tmux hace este trabajo
+config.window_decorations = "RESIZE"
+config.window_close_confirmation = "NeverPrompt"
+
 return config

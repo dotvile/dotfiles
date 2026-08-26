@@ -13,6 +13,7 @@ apps:
   # Editor/terminal
   - { brew: neovim, apt: neovim, pacman: neovim }
   - { brew: wezterm }
+  - { brew: tmux, apt: tmux, pacman: tmux }
 
   # Desktop / WM (macOS)
   - { brew: raycast }
